@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+#MISE description="[global] Stops Excalidraw and removes its container (drawings stay in the browser)"
+#MISE alias="drawd"
+set -euo pipefail
+source "$(dirname "$0")/../_stack.sh"
+
+stack_down excalidraw

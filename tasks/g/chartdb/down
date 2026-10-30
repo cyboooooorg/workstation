@@ -2,7 +2,6 @@
 #MISE description="[global] Stops ChartDB and removes its container (diagrams stay in the browser)"
 #MISE alias="cdbd"
 set -euo pipefail
+source "$(dirname "$0")/../_stack.sh"
 
-stack="$(cd ~/.config/mise && pwd -P)/stacks/chartdb"
-
-docker compose --project-directory "$stack" down --remove-orphans
+stack_down chartdb

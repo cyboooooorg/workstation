@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+#MISE description="[global] Starts Mailpit: SMTP on localhost:1025, inbox on http://mail.localhost"
+#MISE alias="mail"
+set -euo pipefail
+source "$(dirname "$0")/../_stack.sh"
+
+stack_up mailpit http://mail.localhost

@@ -1,0 +1,38 @@
+########################################################################################################
+# Excalidraw: hand-drawn diagrams (https://github.com/excalidraw/excalidraw), on http://draw.localhost
+# Started on demand, behind the machine-wide Traefik: mise run draw (start), mise run drawd (stop)
+########################################################################################################
+
+# Fixed project name, whatever the checkout directory is called
+name: excalidraw
+
+# ---------------------------------------------------------------------------------------------------- #
+# Networks
+# ---------------------------------------------------------------------------------------------------- #
+networks:
+  # Shared network created by the Traefik stack
+  proxy:
+    external: true
+
+# ---------------------------------------------------------------------------------------------------- #
+# Services
+# ---------------------------------------------------------------------------------------------------- #
+services:
+  # ---------------------------------------------------------------------------------------------------- #
+  # Excalidraw container
+  # A static web app: drawings are stored in the browser (local storage), not in the container.
+  # ---------------------------------------------------------------------------------------------------- #
+  excalidraw:
+    image: excalidraw/excalidraw:latest
+    container_name: excalidraw
+    # The image checks its health every 30 s: check every second while starting, so that Traefik
+    # (which skips a container that is still starting) routes to it as soon as it is up
+    healthcheck:
+      start_period: 30s
+      start_interval: 1s
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.excalidraw.rule=Host(`draw.localhost`)
+      - traefik.http.services.excalidraw.loadbalancer.server.port=80
+    networks:
+      - proxy

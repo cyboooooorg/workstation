@@ -1,0 +1,33 @@
+########################################################################################################
+# IT-Tools: developer utilities (JWT, base64, hashes, UUID, cron…), https://github.com/CorentinTh/it-tools
+# Started on demand, behind the machine-wide Traefik: mise run tools (start), mise run toolsd (stop)
+########################################################################################################
+
+# Fixed project name, whatever the checkout directory is called
+name: it-tools
+
+# ---------------------------------------------------------------------------------------------------- #
+# Networks
+# ---------------------------------------------------------------------------------------------------- #
+networks:
+  # Shared network created by the Traefik stack
+  proxy:
+    external: true
+
+# ---------------------------------------------------------------------------------------------------- #
+# Services
+# ---------------------------------------------------------------------------------------------------- #
+services:
+  # ---------------------------------------------------------------------------------------------------- #
+  # IT-Tools container
+  # A static web app: everything runs in the browser, nothing is sent to a third-party site.
+  # ---------------------------------------------------------------------------------------------------- #
+  it-tools:
+    image: corentinth/it-tools:latest
+    container_name: it-tools
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.it-tools.rule=Host(`tools.localhost`)
+      - traefik.http.services.it-tools.loadbalancer.server.port=80
+    networks:
+      - proxy

@@ -1,0 +1,55 @@
+########################################################################################################
+# Mailpit: catches every mail sent by local projects (https://mailpit.axllent.org)
+# Started on demand, behind the machine-wide Traefik: mise run mail (start), mise run maild (stop)
+#   - inbox:            http://mail.localhost
+#   - SMTP from host:   localhost:1025 (any user / password, no TLS)
+#   - SMTP from Docker: mailpit:1025, for containers joining the external "proxy" network
+########################################################################################################
+
+# Fixed project name, whatever the checkout directory is called
+name: mailpit
+
+# ---------------------------------------------------------------------------------------------------- #
+# Networks
+# ---------------------------------------------------------------------------------------------------- #
+networks:
+  # Shared network created by the Traefik stack
+  proxy:
+    external: true
+
+# ---------------------------------------------------------------------------------------------------- #
+# Volumes
+# ---------------------------------------------------------------------------------------------------- #
+volumes:
+  # Caught mails, kept across restarts (removed by `docker volume rm mailpit_data`)
+  data:
+
+# ---------------------------------------------------------------------------------------------------- #
+# Services
+# ---------------------------------------------------------------------------------------------------- #
+services:
+  # ---------------------------------------------------------------------------------------------------- #
+  # Mailpit container
+  # SMTP server that never delivers: every mail lands in the web inbox.
+  # ---------------------------------------------------------------------------------------------------- #
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: mailpit
+    environment:
+      MP_DATABASE: /data/mailpit.db
+      # Projects configured with SMTP credentials work as is
+      MP_SMTP_AUTH_ACCEPT_ANY: "true"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "true"
+    volumes:
+      - data:/data
+    ports:
+      # SMTP bound to localhost only: not reachable from the LAN
+      - "127.0.0.1:1025:1025"
+      # localhost also resolves to ::1, which clients try first
+      - "[::1]:1025:1025"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.mailpit.rule=Host(`mail.localhost`)
+      - traefik.http.services.mailpit.loadbalancer.server.port=8025
+    networks:
+      - proxy
