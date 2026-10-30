@@ -30,7 +30,8 @@ On Linux, add the user to the docker group afterwards
 | `mise run up` | `git pull` of this repository, `mise bootstrap`, then updates everything else (tools, Homebrew, apt, snap) |
 | `mise bootstrap` | Applies the configuration: what is already in place is left alone |
 | `mise bootstrap status` | State of every part (tools, packages, dotfiles…) |
-| `mise tasks -g` | Global tasks (Bitwarden, SSH, herdr, Traefik…) |
+| `mise tasks -g` | Global tasks (Bitwarden, SSH, herdr, Traefik, ChartDB…) |
+| `mise run cdb` / `mise run cdbd` | Starts / stops [ChartDB](#chartdb-database-diagrams) |
 
 Changing a tool or a dotfile means changing this repository, then commit and push.
 
@@ -43,8 +44,9 @@ dotfiles/            files linked into ~ (zshrc) or rendered (kitty.desktop, Lin
   agents/AGENTS.md   global instructions for coding agents (linked by g:agents:link)
 tasks/
   bootstrap          last step of `mise bootstrap`: starts Traefik
-  g/                 global `g:*` tasks (agents, bw, ssh, herdr, traefik, update)
+  g/                 global `g:*` tasks (agents, bw, chartdb, ssh, herdr, traefik, update)
 stacks/traefik/      local reverse proxy, one instance for the whole machine
+stacks/chartdb/      ChartDB, started on demand behind Traefik
 install.sh           new machine setup
 ```
 
@@ -100,6 +102,21 @@ networks:
 Router names must be unique on the machine (hence the project prefix).
 For an app running outside Docker, copy `stacks/traefik/traefik/dynamic/host-apps.yml.example`
 to `<name>.yml` in the same directory.
+
+## ChartDB: database diagrams
+
+[ChartDB](https://github.com/chartdb/chartdb) runs on demand on
+[chartdb.localhost](http://chartdb.localhost), behind Traefik (no port of its own):
+
+```sh
+mise run cdb    # g:chartdb:up: starts Traefik if needed, pulls the latest image, starts ChartDB
+mise run cdbd   # g:chartdb:down: stops ChartDB and removes its container
+```
+
+ChartDB is a static web app: diagrams are stored in the browser (IndexedDB), not in the
+container. Stopping the stack keeps them; clearing the site data of `chartdb.localhost` in the
+browser deletes them, so export the important ones (Export as JSON or SQL). Usage analytics are
+disabled in `stacks/chartdb/compose.yml`.
 
 ## Secrets
 

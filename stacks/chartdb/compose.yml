@@ -1,0 +1,36 @@
+########################################################################################################
+# ChartDB: database diagram editor (https://github.com/chartdb/chartdb), on http://chartdb.localhost
+# Started on demand, behind the machine-wide Traefik: mise run cdb (start), mise run cdbd (stop)
+########################################################################################################
+
+# Fixed project name, whatever the checkout directory is called
+name: chartdb
+
+# ---------------------------------------------------------------------------------------------------- #
+# Networks
+# ---------------------------------------------------------------------------------------------------- #
+networks:
+  # Shared network created by the Traefik stack
+  proxy:
+    external: true
+
+# ---------------------------------------------------------------------------------------------------- #
+# Services
+# ---------------------------------------------------------------------------------------------------- #
+services:
+  # ---------------------------------------------------------------------------------------------------- #
+  # ChartDB container
+  # A static web app: no published port, Traefik routes chartdb.localhost to it.
+  # ---------------------------------------------------------------------------------------------------- #
+  chartdb:
+    image: ghcr.io/chartdb/chartdb:latest
+    container_name: chartdb
+    environment:
+      # No usage analytics sent from the browser
+      DISABLE_ANALYTICS: "true"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.chartdb.rule=Host(`chartdb.localhost`)
+      - traefik.http.services.chartdb.loadbalancer.server.port=80
+    networks:
+      - proxy

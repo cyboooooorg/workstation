@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+#MISE description="[global] Starts ChartDB on http://chartdb.localhost (pulls the latest image)"
+#MISE alias="cdb"
+set -euo pipefail
+
+stack="$(cd ~/.config/mise && pwd -P)/stacks/chartdb"
+
+# ChartDB is only reachable through Traefik (which also starts the Docker engine on macOS)
+mise run -q g:traefik:up
+
+docker compose --project-directory "$stack" up -d --pull always --remove-orphans
+echo "ChartDB: http://chartdb.localhost"
