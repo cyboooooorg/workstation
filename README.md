@@ -39,7 +39,8 @@ Changing a tool or a dotfile means changing this repository, then commit and pus
 ```text
 config.toml          tools, packages (apt / brew), dotfiles, services: a single file,
                      OS-specific entries carry an `os` key
-dotfiles/            files linked into ~ (zshrc) or rendered (kitty.desktop, Linux)
+dotfiles/            files linked into ~ (zshrc, agent instructions) or rendered (kitty.desktop, Linux)
+  agents/AGENTS.md   global instructions for coding agents
 tasks/
   bootstrap          last step of `mise bootstrap`: starts Traefik
   g/                 global `g:*` tasks (bw, ssh, herdr, traefik, update)
@@ -52,6 +53,21 @@ install.sh           new machine setup
 | Docker engine | `docker-ce` (official Docker apt repository) | Colima (Homebrew), started at login |
 | docker CLI, compose, buildx | mise | mise |
 | kitty | GitHub release (mise) + menu entry | Homebrew cask |
+
+## Coding agents
+
+[`dotfiles/agents/AGENTS.md`](dotfiles/agents/AGENTS.md) holds the rules every coding agent
+follows in every project: English documentation (French on request), documentation shipped with
+each change, Conventional Commits without emoji. It is linked to the global instruction file of
+each agent:
+
+| Agent | Global file |
+| --- | --- |
+| Claude Code | `~/.claude/CLAUDE.md` |
+| Gemini CLI | `~/.gemini/GEMINI.md` |
+
+GitHub Copilot keeps its own global instructions (`~/.copilot/copilot-instructions.md`), managed
+outside this repository. Instructions shipped by a project take precedence over these.
 
 ## Traefik: exposing a project on `*.localhost`
 

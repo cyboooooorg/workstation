@@ -24,6 +24,9 @@ ripgrep = "latest"
 "~/.zshrc" = { source = "dotfiles/zshrc" }
 # "kitty" menu entry pointing to the mise kitty (not the apt one)
 "~/.local/share/applications/kitty.desktop" = { source = "dotfiles/kitty.desktop", mode = "template", variants = [{ os = "linux" }] }
+# Global instructions for coding agents, read in every project (one source, one link per agent)
+"~/.claude/CLAUDE.md" = { source = "dotfiles/agents/AGENTS.md" }
+"~/.gemini/GEMINI.md" = { source = "dotfiles/agents/AGENTS.md" }
 
 # Docker engine on Linux, from the official Docker repository
 [bootstrap.apt.sources.docker]
