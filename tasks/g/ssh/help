@@ -1,49 +1,49 @@
 #!/usr/bin/env bash
-#MISE description="[global] Marche à suivre : connexions SSH gérées depuis Bitwarden"
+#MISE description="[global] How-to: SSH connections managed from Bitwarden"
 #MISE alias="sc:help"
 set -euo pipefail
 
 if [[ -t 1 ]]; then B=$'\e[1m'; T=$'\e[1;34m'; C=$'\e[36m'; D=$'\e[2m'; R=$'\e[0m'; else B= T= C= D= R=; fi
 
 cat <<EOF
-${T}Connexions SSH — source unique : Bitwarden${R}
+${T}SSH connections — single source of truth: Bitwarden${R}
 
-${B}1. Une fois par machine${R}
-   ${C}bw login${R}                         se connecter à Bitwarden
+${B}1. Once per machine${R}
+   ${C}bw login${R}                         log in to Bitwarden
 
-${B}2. À chaque session${R}
-   ${C}mise run bwu${R}                     déverrouiller Bitwarden (session partagée entre terminaux)
-   ${C}mise run g:bw:lock${R}               reverrouiller en partant
+${B}2. Every session${R}
+   ${C}mise run bwu${R}                     unlock Bitwarden (session shared between terminals)
+   ${C}mise run g:bw:lock${R}               lock it again when leaving
 
-${B}3. Au quotidien${R}
-   ${C}mise run sl${R}                      lister les serveurs
-   ${C}mise run sc <alias>${R}              se connecter (commandes de la fiche, puis shell)
-   ${C}mise run sc <alias> --no-shell${R}   exécuter les commandes de la fiche puis quitter
-   ${C}mise run sc <alias> --sftp${R}       ouvrir une session SFTP
-   ${D}Tab complète les alias. ssh/scp/VS Code connaissent aussi les alias (sans mot de passe).${R}
+${B}3. Day to day${R}
+   ${C}mise run sl${R}                      list the servers
+   ${C}mise run sc <alias>${R}              connect (item commands, then a shell)
+   ${C}mise run sc <alias> --no-shell${R}   run the item commands, then exit
+   ${C}mise run sc <alias> --sftp${R}       open an SFTP session
+   ${D}Tab completes the aliases. ssh/scp/VS Code know the aliases too (without password).${R}
 
-${B}4. Ajouter ou modifier un serveur${R}
-   ${C}mise run sa <alias>${R}              questions interactives ; Entrée = garder la valeur actuelle
-                                    détecte seul les anciens serveurs (ssh-rsa)
-   ${D}…ou éditer la fiche dans Bitwarden, puis :${R}
-   ${C}mise run ss${R}                      régénérer ~/.ssh/config.d/bitwarden-hosts
+${B}4. Add or edit a server${R}
+   ${C}mise run sa <alias>${R}              interactive questions; Enter = keep the current value
+                                    detects old servers (ssh-rsa) on its own
+   ${D}…or edit the item in Bitwarden, then:${R}
+   ${C}mise run ss${R}                      regenerate ~/.ssh/config.d/bitwarden-hosts
 
-${B}Format d'une fiche Bitwarden${R} ${D}(type Identifiant)${R}
-   Nom            ssh/<alias>
-   Identifiant    utilisateur (vide = $USER)
-   Mot de passe   vide si connexion par clé
-   URI            ssh://hôte:port   ou   sftp://hôte:port
-   Notes          commandes à la connexion, une par ligne
-   Champs perso   legacy-rsa (booléen)    serveur n'offrant que ssh-rsa
-                  identity-file (texte)   ex. ~/.ssh/id_rsa
+${B}Bitwarden item format${R} ${D}(Login type)${R}
+   Name           ssh/<alias>
+   Username       user (empty = $USER)
+   Password       empty for key-based login
+   URI            ssh://host:port   or   sftp://host:port
+   Notes          commands to run on connect, one per line
+   Custom fields  legacy-rsa (boolean)    server offering only ssh-rsa
+                  identity-file (text)    e.g. ~/.ssh/id_rsa
 
-${B}Dépannage${R}
-   « non connecté »                 → ${C}bw login${R}
-   « Aucune fiche … »               → ${C}mise run sl${R} pour l'alias exact, ou ${C}mise run sa <alias>${R}
-   « no matching host key type »    → ${C}mise run sa <alias>${R} (Entrée partout) pour activer ssh-rsa
-   « Permission denied »            → vérifier utilisateur / mot de passe dans la fiche
-   Alias absent de la complétion    → ${C}mise run ss${R}
-   Fiche sans URI                   → ignorée par g:ssh:sync : la compléter avec ${C}mise run sa${R}
+${B}Troubleshooting${R}
+   "not logged in"                  → ${C}bw login${R}
+   "No Bitwarden item …"            → ${C}mise run sl${R} for the exact alias, or ${C}mise run sa <alias>${R}
+   "no matching host key type"      → ${C}mise run sa <alias>${R} (Enter everywhere) to enable ssh-rsa
+   "Permission denied"              → check the user / password in the item
+   Alias missing from completion    → ${C}mise run ss${R}
+   Item without URI                 → skipped by g:ssh:sync: complete it with ${C}mise run sa${R}
 
-${D}Tâches : ~/.config/mise/tasks/g/ssh/   Config générée : ~/.ssh/config.d/bitwarden-hosts${R}
+${D}Tasks: ~/.config/mise/tasks/g/ssh/   Generated config: ~/.ssh/config.d/bitwarden-hosts${R}
 EOF

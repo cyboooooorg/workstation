@@ -104,13 +104,13 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-# Homebrew : /opt/homebrew (macOS Apple Silicon), /usr/local (macOS Intel) ou linuxbrew
+# Homebrew: /opt/homebrew (macOS Apple Silicon), /usr/local (macOS Intel) or linuxbrew
 for brew in /opt/homebrew/bin/brew /usr/local/bin/brew /home/linuxbrew/.linuxbrew/bin/brew; do
   [[ -x $brew ]] && { eval "$($brew shellenv)"; break; }
 done
 unset brew
 
-# mise installé par mise.run (machine neuve) : ~/.local/bin
+# mise installed by mise.run (new machine): ~/.local/bin
 export PATH="$HOME/.local/bin:$PATH"
 
 # `mise` setup
@@ -118,12 +118,12 @@ eval "$(mise activate zsh)"
 eval "$(mise env -s zsh)"
 alias mx="mise exec --"
 alias mr="mise run"
-alias mtl="mise tasks -l"   # tâches du projet uniquement
-alias mtg="mise tasks -g"   # tâches globales uniquement
+alias mtl="mise tasks -l"   # project tasks only
+alias mtg="mise tasks -g"   # global tasks only
 alias mi="mise install"
 alias mu="mise use"
 
 command -v thefuck >/dev/null && eval "$(thefuck --alias)"
 
-# Session Bitwarden partagée par la tâche mise g:bw:unlock (XDG_RUNTIME_DIR n'existe pas sur macOS)
+# Bitwarden session shared by the mise task g:bw:unlock (XDG_RUNTIME_DIR does not exist on macOS)
 [[ -r ${XDG_RUNTIME_DIR:-/tmp}/bw-session ]] && export BW_SESSION=$(<${XDG_RUNTIME_DIR:-/tmp}/bw-session)

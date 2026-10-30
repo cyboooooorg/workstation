@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
-#MISE description="[global] Connexion SSH/SFTP à un serveur décrit dans Bitwarden (fiche ssh/<alias>)"
+#MISE description="[global] SSH/SFTP connection to a server described in Bitwarden (item ssh/<alias>)"
 #MISE alias="sc"
-#USAGE arg "<server>" help="Alias du serveur (fiche Bitwarden ssh/<alias>)"
-#USAGE flag "--no-shell" help="Exécuter les commandes de la fiche puis quitter"
-#USAGE flag "--sftp" help="Ouvrir une session SFTP au lieu d'un shell"
+#USAGE arg "<server>" help="Server alias (Bitwarden item ssh/<alias>)"
+#USAGE flag "--no-shell" help="Run the item commands, then exit"
+#USAGE flag "--sftp" help="Open an SFTP session instead of a shell"
 #USAGE complete "server" run="awk '/^Host /{print $2}' ~/.ssh/config.d/bitwarden-hosts"
 set -euo pipefail
 source "$(dirname "$0")/_lib.sh"
 
 bw_ensure_unlocked
 raw="$(bw_ssh_raw_item "$usage_server")"
-[[ -n "$raw" ]] || { echo "Aucune fiche Bitwarden « $SSH_PREFIX$usage_server ». Voir : mise run g:ssh:list" >&2; exit 1; }
+[[ -n "$raw" ]] || { echo "No Bitwarden item \"$SSH_PREFIX$usage_server\". See: mise run g:ssh:list" >&2; exit 1; }
 item="$(jq "$SSH_ITEM_JQ" <<<"$raw")"
 get() { jq -r ".$1" <<<"$item"; }
 
 scheme="$(get scheme)"; host="$(get host)"; port="$(get port)"; user="$(get user)"
 commands="$(get commands)"; identity="$(get identity)"
-[[ -n "$host" ]] || { echo "La fiche n'a pas d'URI ssh://hôte:port valide." >&2; exit 1; }
+[[ -n "$host" ]] || { echo "The item has no valid ssh://host:port URI." >&2; exit 1; }
 
 opts=(-o StrictHostKeyChecking=accept-new -o ServerAliveInterval=30)
 [[ "$(get legacy)" == "true" ]] && opts+=(-o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedAlgorithms=+ssh-rsa)

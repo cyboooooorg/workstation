@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-#MISE description="[global] Liste les serveurs enregistrés dans Bitwarden (fiches ssh/*)"
+#MISE description="[global] Lists the servers stored in Bitwarden (ssh/* items)"
 #MISE alias="sl"
 set -euo pipefail
 source "$(dirname "$0")/_lib.sh"
 
 bw_ensure_unlocked
 bw_ssh_items | jq -r '
-  (["ALIAS", "URI", "UTILISATEUR", "AUTH", "COMMANDES", "LEGACY"] | @tsv),
+  (["ALIAS", "URI", "USER", "AUTH", "COMMANDS", "LEGACY"] | @tsv),
   (.[] | [ .alias, "\(.scheme)://\(.host):\(.port)", (if .user == "" then "-" else .user end),
-           (if .password != "" then "mot de passe" elif .identity != "" then "clé" else "-" end),
+           (if .password != "" then "password" elif .identity != "" then "key" else "-" end),
            ((.commands | split("\n") | map(select(. != "")) | length) | tostring),
            (if .legacy then "ssh-rsa" else "-" end) ] | @tsv)' \
   | column -t -s $'\t'

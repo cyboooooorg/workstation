@@ -1,6 +1,6 @@
-# Configuration globale mise de la machine : ce dépôt est lié à ~/.config/mise.
-# Un seul fichier pour macOS et Linux : les entrées propres à un OS portent une clé `os`
-# (les gestionnaires absents, apt sur macOS ou brew-cask sur Linux, sont ignorés d'eux-mêmes).
+# Global mise configuration of this machine: this repository is linked to ~/.config/mise.
+# One file for macOS and Linux: OS-specific entries carry an `os` key
+# (unavailable package managers, apt on macOS or brew-cask on Linux, are skipped on their own).
 
 [tools]
 bitwarden = "latest"
@@ -9,7 +9,7 @@ docker-cli = "latest"
 docker-compose = "latest"
 gh = "latest"
 "github:docker/buildx" = { version = "latest", bin = "docker-buildx" }
-# Sur macOS, kitty vient de Homebrew (cask) : la release GitHub n'y fournit qu'un .dmg
+# On macOS, kitty comes from Homebrew (cask): the GitHub release only ships a .dmg there
 "github:kovidgoyal/kitty" = { version = "latest", asset_pattern = "kitty-*-x86_64.txz", os = ["linux/x64"] }
 herdr = "latest"
 jq = "latest"
@@ -22,10 +22,10 @@ ripgrep = "latest"
 
 [dotfiles]
 "~/.zshrc" = { source = "dotfiles/zshrc" }
-# Entrée de menu « kitty » pointant vers le kitty de mise (et non celui d'apt)
+# "kitty" menu entry pointing to the mise kitty (not the apt one)
 "~/.local/share/applications/kitty.desktop" = { source = "dotfiles/kitty.desktop", mode = "template", variants = [{ os = "linux" }] }
 
-# Moteur Docker de Linux, depuis le dépôt officiel Docker
+# Docker engine on Linux, from the official Docker repository
 [bootstrap.apt.sources.docker]
 uris = "https://download.docker.com/linux/debian"
 components = "stable"
@@ -36,15 +36,15 @@ fingerprint = "9DC8 5822 9FC7 DD38 854A E2D8 8D81 803C 0EBF CD88"
 "apt:zsh" = "latest"
 "apt:containerd.io" = "latest"
 "apt:docker-ce" = "latest"
-# Description du terminal xterm-kitty pour les commandes lancées avec sudo,
-# qui ne reçoivent pas le TERMINFO fourni par le kitty de mise
+# xterm-kitty terminal description for commands run with sudo,
+# which do not get the TERMINFO provided by the mise kitty
 "apt:kitty-terminfo" = "latest"
-# Moteur Docker de macOS (VM légère) ; le CLI docker reste celui de mise
+# Docker engine on macOS (lightweight VM); the docker CLI still comes from mise
 "brew:colima" = { os = "macos" }
 "brew-cask:kitty" = { os = "macos" }
 
-# Démarre Colima à l'ouverture de session (ignoré hors macOS).
-# Passe par sh pour trouver colima sous /opt/homebrew (Apple Silicon) comme /usr/local (Intel).
+# Starts Colima at login (ignored outside macOS).
+# Goes through sh to find colima under /opt/homebrew (Apple Silicon) as well as /usr/local (Intel).
 [bootstrap.macos.launchd.agents.colima]
 program = "/bin/sh"
 args = ["-c", "colima start"]
@@ -60,9 +60,9 @@ login_shell = "zsh"
 [bootstrap.services.mise-history]
 builtin = "history-watch"
 
-# Plugins herdr (Terminal Browser, Terminal Code), une fois herdr installé par [tools]
+# herdr plugins (Terminal Browser, Terminal Code), once herdr is installed by [tools]
 [bootstrap.hooks.post-tools]
-description = "Plugins herdr"
+description = "herdr plugins"
 run = "mise run -q g:herdr:plugins"
 
 [settings.pypi]

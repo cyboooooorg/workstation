@@ -1,11 +1,11 @@
 #!/bin/sh
-# Installe une machine neuve (macOS ou Linux Debian/Ubuntu) depuis ce dépôt :
+# Sets up a new machine (macOS or Linux Debian/Ubuntu) from this repository:
 #   curl -fsSL https://raw.githubusercontent.com/cyboooooorg/workstation/main/install.sh | sh
 #
-# 1. prérequis (git, curl ; Homebrew sur macOS)
-# 2. mise, via mise.run, dans ~/.local/bin
-# 3. mise bootstrap : clone le dépôt dans ~/Developer/workstation, lie ~/.config/mise
-#    au dépôt, puis installe paquets, outils, dotfiles et services
+# 1. prerequisites (git, curl; Homebrew on macOS)
+# 2. mise, through mise.run, into ~/.local/bin
+# 3. mise bootstrap: clones the repository into ~/Developer/workstation, links ~/.config/mise
+#    to it, then installs packages, tools, dotfiles and services
 set -eu
 
 REPO="${WORKSTATION_REPO:-https://github.com/cyboooooorg/workstation.git}"
@@ -13,11 +13,11 @@ DIR="${WORKSTATION_DIR:-$HOME/Developer/workstation}"
 
 say() { printf '\n\033[1;34m==> %s\033[0m\n' "$*"; }
 
-# ─── Prérequis ────────────────────────────────────────────────────
+# ─── Prerequisites ────────────────────────────────────────────────
 case "$(uname)" in
   Darwin)
     if ! xcode-select -p >/dev/null 2>&1; then
-      say "Outils en ligne de commande Xcode (git) : terminer l'installation puis relancer ce script"
+      say "Xcode command line tools (git): finish the installation, then run this script again"
       xcode-select --install
       exit 1
     fi
@@ -28,7 +28,7 @@ case "$(uname)" in
     ;;
   Linux)
     if ! command -v git >/dev/null || ! command -v curl >/dev/null; then
-      say "git et curl (apt)"
+      say "git and curl (apt)"
       sudo apt-get update && sudo apt-get install -y git curl
     fi
     ;;
@@ -41,11 +41,11 @@ if ! command -v mise >/dev/null; then
   curl -fsSL https://mise.run | sh
 fi
 
-# ─── Config globale ───────────────────────────────────────────────
-# mise ne lie ~/.config/mise au dépôt que si le dossier est absent ou vide
+# ─── Global config ────────────────────────────────────────────────
+# mise only links ~/.config/mise to the repository if the directory is missing or empty
 if [ -d "$HOME/.config/mise" ] && [ ! -L "$HOME/.config/mise" ] && [ -n "$(ls -A "$HOME/.config/mise")" ]; then
   backup="$HOME/.config/mise.bak-$(date +%Y%m%d-%H%M%S)"
-  say "~/.config/mise existe déjà : déplacé dans $backup"
+  say "~/.config/mise already exists: moved to $backup"
   mv "$HOME/.config/mise" "$backup"
 fi
 
@@ -53,4 +53,4 @@ fi
 say "mise bootstrap"
 mise bootstrap --from "$REPO" --from-dir "$DIR" --config-dir . --yes
 
-say "Terminé : ouvrir un nouveau terminal (zsh)"
+say "Done: open a new terminal (zsh)"

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-#MISE description="[global] Installe les plugins herdr manquants (Terminal Browser, Terminal Code)"
+#MISE description="[global] Installs the missing herdr plugins (Terminal Browser, Terminal Code)"
 set -euo pipefail
 
-# Plugins herdr voulus : « identifiant du plugin|source GitHub ».
-# Leur installation lance aussi l'installateur officiel du programme (dans ~/.local).
-# Sans effet sur un plugin déjà installé : les mises à jour passent par « mise run up ».
+# Wanted herdr plugins: "plugin id|GitHub source".
+# Installing them also runs the program's official installer (into ~/.local).
+# No effect on an already installed plugin: updates go through `mise run up`.
 PLUGINS='
 zenbu-labs.terminal-browser|zenbu-labs/terminal-browser/herdr-plugin
 zenbu-labs.tode|zenbu-labs/terminal-code/herdr-plugin
@@ -14,9 +14,9 @@ installed="$(herdr plugin list 2>/dev/null || true)"
 while IFS='|' read -r id source; do
   [[ -n "$id" ]] || continue
   if grep -qF -- "- $id " <<<"$installed"; then
-    echo "déjà installé : $id"
+    echo "already installed: $id"
   else
-    echo "installation : $id ($source)"
+    echo "installing: $id ($source)"
     herdr plugin install -y "$source"
   fi
 done <<<"$PLUGINS"

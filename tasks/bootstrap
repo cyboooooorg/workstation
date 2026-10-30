@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#MISE description="[global] Dernière étape de « mise bootstrap » : services Docker de la machine"
+#MISE description="[global] Last step of `mise bootstrap`: Docker services of the machine"
 set -euo pipefail
 
 mise run -q g:traefik:up

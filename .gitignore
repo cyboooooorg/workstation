@@ -1,2 +1,2 @@
-# Réglages propres à une machine (non versionnés)
+# Machine-specific settings (not versioned)
 *.local.toml

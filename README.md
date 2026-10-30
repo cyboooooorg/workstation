@@ -1,69 +1,71 @@
 # workstation
 
-Mon poste de dev, sur macOS ou Linux (Debian), décrit par une config [mise](https://mise.jdx.dev) :
-outils, paquets système, dotfiles, tâches et services. Ce dépôt **est** la config globale de mise :
-`~/.config/mise` est un lien vers lui.
+My development machine, on macOS or Linux (Debian), described by a [mise](https://mise.jdx.dev)
+configuration: tools, system packages, dotfiles, tasks and services. This repository **is** the
+global mise configuration: `~/.config/mise` is a link to it.
 
-## Machine neuve
+## New machine
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/cyboooooorg/workstation/main/install.sh | sh
 ```
 
-Le script installe les prérequis (git, curl ; Homebrew sur macOS), puis mise dans `~/.local/bin`, et lance :
+The script installs the prerequisites (git, curl; Homebrew on macOS), then mise into
+`~/.local/bin`, and runs:
 
 ```sh
 mise bootstrap --from https://github.com/cyboooooorg/workstation.git \
   --from-dir ~/Developer/workstation --config-dir . --yes
 ```
 
-Un `~/.config/mise` existant est d'abord déplacé dans `~/.config/mise.bak-<date>`.
+An existing `~/.config/mise` is first moved to `~/.config/mise.bak-<date>`.
 
-Sur Linux, il reste ensuite à ajouter l'utilisateur au groupe docker
-(`sudo usermod -aG docker $USER`, puis se reconnecter).
+On Linux, add the user to the docker group afterwards
+(`sudo usermod -aG docker $USER`, then log in again).
 
-## Au quotidien
+## Day to day
 
-| Commande | Effet |
-|---|---|
-| `mise run up` | `git pull` du dépôt, `mise bootstrap`, puis mise à jour de tout le reste (outils, Homebrew, apt, snap) |
-| `mise bootstrap` | Applique la config : ce qui est déjà en place n'est pas touché |
-| `mise bootstrap status` | État de chaque partie (outils, paquets, dotfiles…) |
-| `mise tasks -g` | Tâches globales (Bitwarden, SSH, herdr, Traefik…) |
+| Command | Effect |
+| --- | --- |
+| `mise run up` | `git pull` of this repository, `mise bootstrap`, then updates everything else (tools, Homebrew, apt, snap) |
+| `mise bootstrap` | Applies the configuration: what is already in place is left alone |
+| `mise bootstrap status` | State of every part (tools, packages, dotfiles…) |
+| `mise tasks -g` | Global tasks (Bitwarden, SSH, herdr, Traefik…) |
 
-Modifier un outil ou un dotfile = modifier ce dépôt, puis commit et push.
+Changing a tool or a dotfile means changing this repository, then commit and push.
 
-## Contenu
+## Contents
 
-```
-config.toml          outils, paquets (apt / brew), dotfiles, services : un seul fichier,
-                     les entrées propres à un OS portent une clé `os`
-dotfiles/            fichiers liés dans ~ (zshrc) ou générés (kitty.desktop, Linux)
+```text
+config.toml          tools, packages (apt / brew), dotfiles, services: a single file,
+                     OS-specific entries carry an `os` key
+dotfiles/            files linked into ~ (zshrc) or rendered (kitty.desktop, Linux)
 tasks/
-  bootstrap          dernière étape de `mise bootstrap` : démarre Traefik
-  g/                 tâches globales `g:*` (bw, ssh, herdr, traefik, update)
-stacks/traefik/      reverse proxy local, une instance pour toute la machine
-install.sh           installation d'une machine neuve
+  bootstrap          last step of `mise bootstrap`: starts Traefik
+  g/                 global `g:*` tasks (bw, ssh, herdr, traefik, update)
+stacks/traefik/      local reverse proxy, one instance for the whole machine
+install.sh           new machine setup
 ```
 
 | | Linux (Debian) | macOS |
-|---|---|---|
-| Moteur Docker | `docker-ce` (dépôt apt officiel Docker) | Colima (Homebrew), démarré à l'ouverture de session |
-| CLI docker, compose, buildx | mise | mise |
-| kitty | release GitHub (mise) + entrée de menu | cask Homebrew |
+| --- | --- | --- |
+| Docker engine | `docker-ce` (official Docker apt repository) | Colima (Homebrew), started at login |
+| docker CLI, compose, buildx | mise | mise |
+| kitty | GitHub release (mise) + menu entry | Homebrew cask |
 
-## Traefik : exposer un projet en `*.localhost`
+## Traefik: exposing a project on `*.localhost`
 
-Traefik écoute sur `127.0.0.1:80` et `[::1]:80`. Tableau de bord : <http://traefik.localhost/dashboard/>.
-Dans le `compose.yaml` d'un projet :
+Traefik listens on `127.0.0.1:80` and `[::1]:80`.
+Dashboard: [traefik.localhost/dashboard](http://traefik.localhost/dashboard/).
+In a project's `compose.yaml`:
 
 ```yaml
 services:
   api:
     labels:
       - traefik.enable=true
-      - traefik.http.routers.monprojet-api.rule=Host(`api.monprojet.localhost`)
-      - traefik.http.services.monprojet-api.loadbalancer.server.port=8080  # port interne du conteneur
+      - traefik.http.routers.myproject-api.rule=Host(`api.myproject.localhost`)
+      - traefik.http.services.myproject-api.loadbalancer.server.port=8080  # container port
     networks: [proxy, default]
 
 networks:
@@ -71,12 +73,12 @@ networks:
     external: true
 ```
 
-Les noms de routeurs doivent être uniques sur la machine (d'où le préfixe du projet).
-Pour une appli lancée hors Docker : copier `stacks/traefik/traefik/dynamic/host-apps.yml.example`
-en `<nom>.yml` dans le même dossier.
+Router names must be unique on the machine (hence the project prefix).
+For an app running outside Docker, copy `stacks/traefik/traefik/dynamic/host-apps.yml.example`
+to `<name>.yml` in the same directory.
 
 ## Secrets
 
-Aucun secret dans ce dépôt : il est public. Les accès SSH et les mots de passe vivent dans Bitwarden
-(`mise run bwu`, puis `mise run g:ssh:help`). Un réglage propre à une machine va dans un fichier
-`*.local.toml`, ignoré par git.
+No secrets in this repository: it is public. SSH access and passwords live in Bitwarden
+(`mise run bwu`, then `mise run g:ssh:help`). Machine-specific settings go in a `*.local.toml`
+file, ignored by git.
