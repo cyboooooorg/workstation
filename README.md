@@ -32,6 +32,7 @@ On Linux, add the user to the docker group afterwards
 | `mise bootstrap status` | State of every part (tools, packages, dotfiles…) |
 | `mise tasks -g` | Global tasks (Bitwarden, SSH, herdr, Traefik, local services…) |
 | `mise run mail`, `cdb`, `tools`, `draw` | Starts a [local service](#local-services-on-demand); add `d` to stop it (`maild`…) |
+| `mise run dclean` | [Frees Docker disk space](#docker-cleanup) |
 
 Changing a tool or a dotfile means changing this repository, then commit and push.
 
@@ -44,7 +45,7 @@ dotfiles/            files linked into ~ (zshrc) or rendered (kitty.desktop, Lin
   agents/AGENTS.md   global instructions for coding agents (linked by g:agents:link)
 tasks/
   bootstrap          last step of `mise bootstrap`: starts Traefik
-  g/                 global `g:*` tasks (agents, bw, herdr, ssh, traefik, update,
+  g/                 global `g:*` tasks (agents, bw, docker, herdr, ssh, traefik, update,
                      and one up / down pair per local service)
   g/_stack.sh        functions shared by the local service tasks
 stacks/traefik/      local reverse proxy, one instance for the whole machine
@@ -132,6 +133,23 @@ container. Stopping the service keeps them; clearing the site data of `chartdb.l
 analytics are disabled in `stacks/chartdb/compose.yml`.
 
 To add a service, copy one of `stacks/<service>/compose.yml` and `tasks/g/<service>/{up,down}`.
+
+## Docker cleanup
+
+`mise run dclean` (`g:docker:clean`) shows the disk usage, asks for confirmation, then removes
+stopped containers, unused networks, dangling images and the build cache no image uses. Running
+containers, the images they use and named volumes (databases) are always kept.
+
+```sh
+mise run dclean                 # the safe cleanup above
+mise run dclean --old-images    # also older versions of each image, keeping the newest one
+mise run dclean --all-images    # also every image no container uses (pulled again when needed)
+mise run dclean --volumes       # also unused anonymous volumes
+mise run dclean --dry-run       # disk usage, and the images --old-images would remove
+```
+
+`--old-images` only looks at version tags (`12`, `1.1.72`, `v2.3`): other tags name variants,
+such as `php:8.2-cli` and `php:5.6-cli`, and are left alone. Add `--yes` to skip the confirmation.
 
 ## Secrets
 

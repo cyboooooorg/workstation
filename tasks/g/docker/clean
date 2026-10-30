@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+#MISE description="[global] Frees Docker disk space: stopped containers, unused networks, dangling images, build cache"
+#MISE alias="dclean"
+#USAGE flag "--old-images" help="Also remove older versions of each image (version tags such as 12 or 1.1.72), keeping the newest one"
+#USAGE flag "--all-images" help="Also remove every image no container uses (pulled or rebuilt again when needed)"
+#USAGE flag "--volumes" help="Also remove unused anonymous volumes (named volumes, such as databases, are never removed)"
+#USAGE flag "-n --dry-run" help="Only show the disk usage and the older images --old-images would remove"
+#USAGE flag "-y --yes" help="Do not ask for confirmation"
+set -euo pipefail
+
+step() { printf '\n\033[1;34m==> %s\033[0m\n' "$*"; }
+
+old_images="${usage_old_images:-false}"
+all_images="${usage_all_images:-false}"
+volumes="${usage_volumes:-false}"
+dry_run="${usage_dry_run:-false}"
+yes="${usage_yes:-false}"
+
+# Prints "repository:tag" for every image older than the newest version of its repository,
+# unless a container (running or not) uses it.
+# Only version tags count (12, 1.1.72, v2.3): other tags name variants, not versions
+# (php:8.2-cli and php:5.6-cli, app:dev-local and app:dev-runtime), and are left alone.
+old_image_refs() {
+  local used repo tag id
+  local -A kept=()
+  used="$(docker ps -aq | xargs -r docker inspect --format '{{.Image}}')"
+  # `docker images` lists the newest first: the first image of each repository is kept
+  while IFS=$'\t' read -r repo tag id; do
+    [[ "$repo" != "<none>" && "$tag" =~ ^v?[0-9]+(\.[0-9]+)*$ ]] || continue
+    if [[ -z "${kept[$repo]:-}" ]]; then
+      kept[$repo]="$id"
+      continue
+    fi
+    # Another tag of the kept image, or an image a container uses
+    [[ "$id" == "${kept[$repo]}" ]] && continue
+    grep -qxF "$id" <<<"$used" && continue
+    echo "$repo:$tag"
+  done < <(docker images --no-trunc --format '{{.Repository}}\t{{.Tag}}\t{{.ID}}')
+}
+
+if ! docker info >/dev/null 2>&1; then
+  echo "Docker is not responding: start the engine, then retry." >&2
+  exit 1
+fi
+
+step "Disk usage before"
+docker system df
+
+echo
+echo "Will remove:"
+echo "  - stopped containers (compose recreates them on the next start)"
+echo "  - networks no container uses"
+echo "  - dangling images (untagged leftovers of builds and pulls)"
+echo "  - build cache no image uses"
+[[ "$old_images" == true ]] && echo "  - older versions of each image, keeping the newest one"
+[[ "$all_images" == true ]] && echo "  - every image no container uses"
+[[ "$volumes" == true ]] && echo "  - anonymous volumes no container uses"
+echo "Kept: running containers, the images they use, named volumes."
+
+if [[ "$dry_run" == true ]]; then
+  step "Older versions --old-images would remove"
+  old_image_refs
+  exit 0
+fi
+
+if [[ "$yes" != true ]]; then
+  read -r -p "Continue? [y/N] " answer
+  [[ "$answer" =~ ^[yYoO] ]] || exit 0
+fi
+
+step "Stopped containers, unused networks, dangling images, build cache"
+docker system prune --force
+
+if [[ "$old_images" == true && "$all_images" != true ]]; then
+  step "Older versions of each image"
+  old_image_refs | while read -r ref; do
+    docker rmi "$ref" >/dev/null && echo "removed: $ref"
+  done
+fi
+
+if [[ "$all_images" == true ]]; then
+  step "Images no container uses"
+  docker image prune --all --force
+fi
+
+if [[ "$volumes" == true ]]; then
+  step "Unused anonymous volumes"
+  # Without --all, only anonymous volumes are removed
+  docker volume prune --force
+fi
+
+step "Disk usage after"
+docker system df
