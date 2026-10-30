@@ -1,0 +1,15 @@
+# ---------------------------------------------------------------------------------------------------- #
+# Example: route an app running on the host (outside Docker) through Traefik.
+# Copy this file to <name>.yml in this directory: Traefik picks it up without a restart.
+# The app must listen on 0.0.0.0 (not only 127.0.0.1) to be reachable from the container.
+# ---------------------------------------------------------------------------------------------------- #
+http:
+  routers:
+    myapp:
+      rule: Host(`myapp.localhost`)
+      service: myapp
+  services:
+    myapp:
+      loadBalancer:
+        servers:
+          - url: http://host.docker.internal:3000

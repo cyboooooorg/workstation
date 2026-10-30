@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+#MISE description="[global] Déverrouille Bitwarden et partage la session (fichier en RAM + export pour eval)"
+#MISE alias="bwu"
+set -euo pipefail
+
+session_file="${XDG_RUNTIME_DIR:-/tmp}/bw-session"
+
+# Réutilise une session encore valide
+if [[ -r "$session_file" ]]; then
+  session="$(<"$session_file")"
+  [[ "$(BW_SESSION="$session" bw status | jq -r .status)" == "unlocked" ]] || session=""
+fi
+
+if [[ -z "${session:-}" ]]; then
+  if [[ "$(bw status | jq -r .status)" == "unauthenticated" ]]; then
+    echo "Bitwarden : non connecté. Lancez d'abord : bw login" >&2
+    exit 1
+  fi
+  session="$(bw unlock --raw < /dev/tty)"
+  (umask 077 && printf '%s' "$session" > "$session_file")
+fi
+
+if [[ -t 1 ]]; then
+  echo "Bitwarden déverrouillé (session dans $session_file)." >&2
+  echo "Pour l'exporter dans ce shell : eval \"\$(mise run -q g:bw:unlock)\"" >&2
+else
+  printf 'export BW_SESSION=%q\n' "$session"
+fi

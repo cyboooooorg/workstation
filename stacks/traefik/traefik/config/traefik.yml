@@ -1,0 +1,25 @@
+# ---------------------------------------------------------------------------------------------------- #
+# Traefik static configuration
+# ---------------------------------------------------------------------------------------------------- #
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      # Drops headers aliasing a managed one (X_Forwarded_For for X-Forwarded-For) to prevent spoofing
+      aliasHeadersStrategy: delete
+
+providers:
+  # Containers are only exposed when they set traefik.enable=true and join the "proxy" network
+  docker:
+    exposedByDefault: false
+    network: proxy
+  # Routes to apps running on the host, reloaded automatically when a file changes
+  file:
+    directory: /etc/traefik/dynamic
+    watch: true
+
+api:
+  dashboard: true
+
+log:
+  level: INFO

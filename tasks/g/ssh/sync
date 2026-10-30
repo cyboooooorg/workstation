@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+#MISE description="[global] Régénère ~/.ssh/config.d/bitwarden-hosts depuis Bitwarden (pour ssh, scp, VS Code et l'autocomplétion)"
+#MISE alias="ss"
+set -euo pipefail
+source "$(dirname "$0")/_lib.sh"
+
+bw_ensure_unlocked
+mkdir -p "$(dirname "$SSH_GENERATED_CONFIG")"
+tmp="$(mktemp)"
+{
+  echo "# Généré par « mise run g:ssh:sync » depuis Bitwarden ($(date '+%F %T')). Ne pas modifier : éditer les fiches ssh/* dans Bitwarden."
+  bw_ssh_items | jq -r '.[] | select(.host != "") |
+    "\nHost \(.alias)",
+    "    HostName \(.host)",
+    "    Port \(.port)",
+    (if .user != "" then "    User \(.user)" else empty end),
+    (if .identity != "" then "    IdentityFile \(.identity)" else empty end),
+    (if .legacy then "    HostKeyAlgorithms +ssh-rsa\n    PubkeyAcceptedAlgorithms +ssh-rsa" else empty end),
+    "    StrictHostKeyChecking accept-new",
+    "    ServerAliveInterval 30"'
+} > "$tmp"
+install -m 600 "$tmp" "$SSH_GENERATED_CONFIG" && rm -f "$tmp"
+echo "$(grep -c '^Host ' "$SSH_GENERATED_CONFIG") serveur(s) écrit(s) dans $SSH_GENERATED_CONFIG"
+bw_ssh_items | jq -r '.[] | select(.host == "") | "Ignoré (pas d’URI ssh://hôte:port) : \(.alias) -> mise run g:ssh:add \(.alias)"' >&2

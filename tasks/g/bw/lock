@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#MISE description="[global] Verrouille Bitwarden et supprime la session partagée"
+set -euo pipefail
+bw lock >/dev/null
+rm -f "${XDG_RUNTIME_DIR:-/tmp}/bw-session"
+echo "Bitwarden verrouillé. Pensez à : unset BW_SESSION" >&2

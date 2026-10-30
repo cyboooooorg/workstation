@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+#MISE description="[global] Démarre le reverse proxy Traefik local (http://traefik.localhost/dashboard/)"
+set -euo pipefail
+
+stack="$(cd ~/.config/mise && pwd -P)/stacks/traefik"
+
+# Sur macOS, le moteur Docker est la VM Colima : la démarrer si elle ne tourne pas
+if ! docker info >/dev/null 2>&1; then
+  if [[ "$(uname)" == "Darwin" ]] && command -v colima >/dev/null; then
+    colima start
+  else
+    echo "Docker ne répond pas : démarrer le moteur (ou ajouter $USER au groupe docker) puis relancer." >&2
+    exit 1
+  fi
+fi
+
+docker compose --project-directory "$stack" up -d

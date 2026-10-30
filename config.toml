@@ -1,0 +1,69 @@
+# Configuration globale mise de la machine : ce dépôt est lié à ~/.config/mise.
+# Un seul fichier pour macOS et Linux : les entrées propres à un OS portent une clé `os`
+# (les gestionnaires absents, apt sur macOS ou brew-cask sur Linux, sont ignorés d'eux-mêmes).
+
+[tools]
+bitwarden = "latest"
+claude = "latest"
+docker-cli = "latest"
+docker-compose = "latest"
+gh = "latest"
+"github:docker/buildx" = { version = "latest", bin = "docker-buildx" }
+# Sur macOS, kitty vient de Homebrew (cask) : la release GitHub n'y fournit qu'un .dmg
+"github:kovidgoyal/kitty" = { version = "latest", asset_pattern = "kitty-*-x86_64.txz", os = ["linux/x64"] }
+herdr = "latest"
+jq = "latest"
+lazydocker = "latest"
+node = "lts"
+pipx = "latest"
+"pipx:thefuck" = "latest"
+"pipx:yq" = "latest"
+ripgrep = "latest"
+
+[dotfiles]
+"~/.zshrc" = { source = "dotfiles/zshrc" }
+# Entrée de menu « kitty » pointant vers le kitty de mise (et non celui d'apt)
+"~/.local/share/applications/kitty.desktop" = { source = "dotfiles/kitty.desktop", mode = "template", variants = [{ os = "linux" }] }
+
+# Moteur Docker de Linux, depuis le dépôt officiel Docker
+[bootstrap.apt.sources.docker]
+uris = "https://download.docker.com/linux/debian"
+components = "stable"
+key = "https://download.docker.com/linux/debian/gpg"
+fingerprint = "9DC8 5822 9FC7 DD38 854A E2D8 8D81 803C 0EBF CD88"
+
+[bootstrap.packages]
+"apt:zsh" = "latest"
+"apt:containerd.io" = "latest"
+"apt:docker-ce" = "latest"
+# Description du terminal xterm-kitty pour les commandes lancées avec sudo,
+# qui ne reçoivent pas le TERMINFO fourni par le kitty de mise
+"apt:kitty-terminfo" = "latest"
+# Moteur Docker de macOS (VM légère) ; le CLI docker reste celui de mise
+"brew:colima" = { os = "macos" }
+"brew-cask:kitty" = { os = "macos" }
+
+# Démarre Colima à l'ouverture de session (ignoré hors macOS).
+# Passe par sh pour trouver colima sous /opt/homebrew (Apple Silicon) comme /usr/local (Intel).
+[bootstrap.macos.launchd.agents.colima]
+program = "/bin/sh"
+args = ["-c", "colima start"]
+run_at_load = true
+environment = { PATH = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin" }
+
+[bootstrap.repos]
+"~/.oh-my-zsh" = { url = "https://github.com/ohmyzsh/ohmyzsh.git" }
+
+[bootstrap.user]
+login_shell = "zsh"
+
+[bootstrap.services.mise-history]
+builtin = "history-watch"
+
+# Plugins herdr (Terminal Browser, Terminal Code), une fois herdr installé par [tools]
+[bootstrap.hooks.post-tools]
+description = "Plugins herdr"
+run = "mise run -q g:herdr:plugins"
+
+[settings.pypi]
+uvx = false

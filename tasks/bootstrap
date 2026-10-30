@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="[global] Dernière étape de « mise bootstrap » : services Docker de la machine"
+set -euo pipefail
+
+mise run -q g:traefik:up

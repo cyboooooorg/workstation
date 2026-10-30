@@ -1,0 +1,64 @@
+########################################################################################################
+# IMPORTANT NOTE: This file is a docker compose file that is used to define the reverse proxy related
+# services. It is used to define the Traefik container.
+# Unlike the other stacks, it is meant to be run standalone, ONCE for the whole machine,
+# started by the last step of « mise bootstrap » (or by hand: mise run g:traefik:up)
+# Projects expose their services by joining the external "proxy" network and adding Traefik labels:
+#   labels:
+#     - traefik.enable=true
+#     - traefik.http.routers.<project>-<service>.rule=Host(`<service>.<project>.localhost`)
+#     - traefik.http.services.<project>-<service>.loadbalancer.server.port=<container port>
+#   networks: [proxy, default]
+#   ...
+#   networks:
+#     proxy:
+#       external: true
+########################################################################################################
+
+# Fixed project name, whatever the checkout directory is called
+name: traefik
+
+# ---------------------------------------------------------------------------------------------------- #
+# Networks
+# ---------------------------------------------------------------------------------------------------- #
+networks:
+  # ---------------------------------------------------------------------------------------------------- #
+  # Proxy network
+  # The shared network that every project joins to be reachable through Traefik.
+  # ---------------------------------------------------------------------------------------------------- #
+  proxy:
+    name: proxy
+    driver: bridge
+
+# ---------------------------------------------------------------------------------------------------- #
+# Services
+# ---------------------------------------------------------------------------------------------------- #
+services:
+  # ---------------------------------------------------------------------------------------------------- #
+  # Traefik container
+  # The Traefik container routes *.localhost requests to the matching containers (Docker labels)
+  # and to the apps running on the host (dynamic files in ./traefik/dynamic).
+  # ---------------------------------------------------------------------------------------------------- #
+  proxy-service-traefik:
+    image: traefik:v3.7.16
+    container_name: traefik
+    restart: unless-stopped
+    volumes:
+      - ./traefik/config/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./traefik/dynamic:/etc/traefik/dynamic:ro
+      # Read-only access to the Docker API so Traefik can discover containers from their labels
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      # Bound to localhost only: the proxy is not reachable from the LAN
+      - "127.0.0.1:80:80"
+      # *.localhost also resolves to ::1, which clients try first
+      - "[::1]:80:80"
+    extra_hosts:
+      # Lets the dynamic files target apps running on the host (e.g. npm run dev)
+      - host.docker.internal:host-gateway
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.traefik-dashboard.rule=Host(`traefik.localhost`)
+      - traefik.http.routers.traefik-dashboard.service=api@internal
+    networks:
+      - proxy

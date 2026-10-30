@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+#MISE description="[global] Ajoute ou modifie un serveur dans Bitwarden (questions interactives)"
+#MISE alias="sa"
+#USAGE arg "[server]" help="Alias du serveur (demandé si absent)"
+#USAGE complete "server" run="awk '/^Host /{print $2}' ~/.ssh/config.d/bitwarden-hosts"
+set -euo pipefail
+source "$(dirname "$0")/_lib.sh"
+
+ask() { local __v; read -rp "$1${2:+ [$2]} : " __v; printf '%s' "${__v:-${2:-}}"; }
+
+bw_ensure_unlocked
+
+alias="${usage_server:-}"
+[[ -n "$alias" ]] || alias="$(ask "Alias (ex. prod-api)")"
+[[ "$alias" =~ ^[A-Za-z0-9._-]+$ ]] || { echo "Alias invalide : lettres, chiffres, . _ - uniquement." >&2; exit 1; }
+
+# Valeurs par défaut : celles de la fiche existante, si elle existe
+cur="{}"
+raw="$(bw_ssh_raw_item "$alias")"
+if [[ -n "$raw" ]]; then
+  cur="$(jq "$SSH_ITEM_JQ" <<<"$raw")"
+  echo "Fiche existante : Entrée garde la valeur actuelle."
+fi
+def() { jq -r ".$1 // empty" <<<"$cur"; }
+
+host="$(ask "Adresse IP ou nom d'hôte" "$(def host)")"
+[[ -n "$host" ]] || { echo "Adresse obligatoire." >&2; exit 1; }
+port="$(ask "Port" "$(def port || true)")"; port="${port:-22}"
+scheme="$(ask "Type (ssh/sftp)" "$(def scheme || true)")"; scheme="${scheme:-ssh}"
+user="$(ask "Utilisateur (vide = $USER)" "$(def user)")"
+read -rsp "Mot de passe (vide = ${raw:+inchangé / }clé SSH) : " SSH_PASSWORD; echo
+export SSH_PASSWORD
+identity="$(ask "Clé privée (vide = aucune)" "$(def identity)")"
+
+echo "Commandes à la connexion, une par ligne, ligne vide pour terminer :"
+[[ -n "$(def commands)" ]] && { echo "(actuelles :)"; def commands | sed 's/^/    /'; echo "(laisser vide pour les garder)"; }
+commands=""
+while IFS= read -r line && [[ -n "$line" ]]; do commands+="$line"$'\n'; done
+commands="${commands%$'\n'}"
+[[ -n "$commands" ]] || commands="$(def commands)"
+
+printf "Test de négociation avec %s:%s… " "$host" "$port"
+if ssh_needs_legacy_rsa "$host" "$port"; then legacy=true; echo "ancien serveur (ssh-rsa activé)"; else legacy=false; echo "ok"; fi
+
+bw_ssh_upsert "$alias" "$scheme://$host:$port" "$user" "$commands" "$legacy" "$identity"
+unset SSH_PASSWORD
+"$(dirname "$0")/sync"
+echo "Connexion : mise run sc $alias"
