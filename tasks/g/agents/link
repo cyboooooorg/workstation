@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+#MISE description="[global] Links dotfiles/agents/AGENTS.md to the global instruction file of each installed coding agent"
+set -euo pipefail
+
+# Coding agents: "command|global instruction file".
+# An agent counts as installed when its command is on the PATH.
+AGENTS='
+claude|.claude/CLAUDE.md
+gemini|.gemini/GEMINI.md
+copilot|.copilot/copilot-instructions.md
+'
+
+source_file="$(cd "$(dirname "$0")/../../.." && pwd)/dotfiles/agents/AGENTS.md"
+
+while IFS='|' read -r cmd target; do
+  [[ -n "$cmd" ]] || continue
+  target="$HOME/$target"
+
+  if ! command -v "$cmd" >/dev/null; then
+    # Agent gone: drop our link, leave anything else alone
+    if [[ -L "$target" && "$(readlink "$target")" == "$source_file" ]]; then
+      rm "$target"
+      echo "removed: $target ($cmd not installed)"
+    fi
+    continue
+  fi
+
+  if [[ -L "$target" && "$(readlink "$target")" == "$source_file" ]]; then
+    echo "up to date: $target"
+    continue
+  fi
+
+  # A regular file holds instructions written by hand: keep a copy.
+  # A link to somewhere else is replaced.
+  if [[ -f "$target" && ! -L "$target" ]]; then
+    backup="$target.bak-$(date +%Y%m%d-%H%M%S)"
+    mv "$target" "$backup"
+    echo "moved: $target -> $backup"
+  fi
+  mkdir -p "$(dirname "$target")"
+  ln -sfn "$source_file" "$target"
+  echo "linked: $target"
+done <<<"$AGENTS"

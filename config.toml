@@ -24,9 +24,6 @@ ripgrep = "latest"
 "~/.zshrc" = { source = "dotfiles/zshrc" }
 # "kitty" menu entry pointing to the mise kitty (not the apt one)
 "~/.local/share/applications/kitty.desktop" = { source = "dotfiles/kitty.desktop", mode = "template", variants = [{ os = "linux" }] }
-# Global instructions for coding agents, read in every project (one source, one link per agent)
-"~/.claude/CLAUDE.md" = { source = "dotfiles/agents/AGENTS.md" }
-"~/.gemini/GEMINI.md" = { source = "dotfiles/agents/AGENTS.md" }
 
 # Docker engine on Linux, from the official Docker repository
 [bootstrap.apt.sources.docker]
@@ -63,10 +60,13 @@ login_shell = "zsh"
 [bootstrap.services.mise-history]
 builtin = "history-watch"
 
-# herdr plugins (Terminal Browser, Terminal Code), once herdr is installed by [tools]
+# Once [tools] are installed:
+# - herdr plugins (Terminal Browser, Terminal Code)
+# - global instructions for coding agents (dotfiles/agents/AGENTS.md), linked only for the
+#   agents installed on this machine: [dotfiles] entries cannot depend on that
 [bootstrap.hooks.post-tools]
-description = "herdr plugins"
-run = "mise run -q g:herdr:plugins"
+description = "herdr plugins, coding agent instructions"
+run = ["mise run -q g:herdr:plugins", "mise run -q g:agents:link"]
 
 [settings.pypi]
 uvx = false

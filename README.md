@@ -39,11 +39,11 @@ Changing a tool or a dotfile means changing this repository, then commit and pus
 ```text
 config.toml          tools, packages (apt / brew), dotfiles, services: a single file,
                      OS-specific entries carry an `os` key
-dotfiles/            files linked into ~ (zshrc, agent instructions) or rendered (kitty.desktop, Linux)
-  agents/AGENTS.md   global instructions for coding agents
+dotfiles/            files linked into ~ (zshrc) or rendered (kitty.desktop, Linux)
+  agents/AGENTS.md   global instructions for coding agents (linked by g:agents:link)
 tasks/
   bootstrap          last step of `mise bootstrap`: starts Traefik
-  g/                 global `g:*` tasks (bw, ssh, herdr, traefik, update)
+  g/                 global `g:*` tasks (agents, bw, ssh, herdr, traefik, update)
 stacks/traefik/      local reverse proxy, one instance for the whole machine
 install.sh           new machine setup
 ```
@@ -58,16 +58,24 @@ install.sh           new machine setup
 
 [`dotfiles/agents/AGENTS.md`](dotfiles/agents/AGENTS.md) holds the rules every coding agent
 follows in every project: English documentation (French on request), documentation shipped with
-each change, Conventional Commits without emoji. It is linked to the global instruction file of
-each agent:
+each change, Conventional Commits without emoji.
 
-| Agent | Global file |
-| --- | --- |
-| Claude Code | `~/.claude/CLAUDE.md` |
-| Gemini CLI | `~/.gemini/GEMINI.md` |
+`mise bootstrap` runs `mise run g:agents:link` once the tools are installed. The task links this
+file to the global instruction file of every agent whose command is on the `PATH`:
 
-GitHub Copilot keeps its own global instructions (`~/.copilot/copilot-instructions.md`), managed
-outside this repository. Instructions shipped by a project take precedence over these.
+| Agent | Command | Global file |
+| --- | --- | --- |
+| Claude Code | `claude` | `~/.claude/CLAUDE.md` |
+| Gemini CLI | `gemini` | `~/.gemini/GEMINI.md` |
+| GitHub Copilot CLI | `copilot` | `~/.copilot/copilot-instructions.md` |
+
+- An existing regular file is moved to `<file>.bak-<date>` first; a link to somewhere else is
+  replaced.
+- When an agent is no longer installed, its link is removed (only if it points to this file).
+- To support another agent, add a `command|file` line to `tasks/g/agents/link`, then run
+  `mise run g:agents:link` (installing an agent later does not need a full `mise bootstrap`).
+
+Instructions shipped by a project take precedence over these.
 
 ## Traefik: exposing a project on `*.localhost`
 
