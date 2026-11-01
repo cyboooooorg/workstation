@@ -18,6 +18,7 @@ node = "lts"
 "github:iffse/pay-respects" = "latest"
 pipx = "latest"
 "pipx:yq" = "latest"
+python = "latest"
 ripgrep = "latest"
 
 [dotfiles]

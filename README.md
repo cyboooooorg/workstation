@@ -61,6 +61,7 @@ install.sh           new machine setup
 | --- | --- | --- |
 | Docker engine | `docker-ce` (official Docker apt repository) | Colima (Homebrew), started at login |
 | docker CLI, compose, buildx | mise | mise |
+| Python (also runs the `pipx:` tools) | mise | mise (no Homebrew `python@*`) |
 | kitty | GitHub release (mise) + menu entry | Homebrew cask |
 | bash 5 | system | Homebrew (`/bin/bash` stays 3.2) |
 
