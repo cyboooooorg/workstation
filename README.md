@@ -85,7 +85,6 @@ file to the global instruction file of every agent whose command is on the `PATH
 | --- | --- | --- |
 | Claude Code | `claude` | `~/.claude/CLAUDE.md` |
 | Gemini CLI | `gemini` | `~/.gemini/GEMINI.md` |
-| GitHub Copilot CLI | `copilot` | `~/.copilot/copilot-instructions.md` |
 
 - An existing regular file is moved to `<file>.bak-<date>` first; a link to somewhere else is
   replaced.
