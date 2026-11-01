@@ -21,7 +21,7 @@ mise bootstrap --from https://github.com/cyboooooorg/workstation.git \
 
 An existing `~/.config/mise` is first moved to `~/.config/mise.bak-<date>`, and an existing
 `~/.zshrc` (not a link) to `~/.zshrc.bak-<date>`: copy the machine-specific lines you still need
-from the backup.
+from the backup into `~/.zshrc.local`.
 
 On Linux, add the user to the docker group afterwards
 (`sudo usermod -aG docker $USER`, then log in again).
@@ -164,4 +164,5 @@ such as `php:8.2-cli` and `php:5.6-cli`, and are left alone. Add `--yes` to skip
 
 No secrets in this repository: it is public. SSH access and passwords live in Bitwarden
 (`mise run bwu`, then `mise run g:ssh:help`). Machine-specific settings go in a `*.local.toml`
-file, ignored by git.
+file, ignored by git, and machine-specific shell settings (PATH entries, aliases) in
+`~/.zshrc.local`, sourced last by `~/.zshrc` when it exists.
