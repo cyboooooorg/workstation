@@ -39,6 +39,19 @@ export PATH="$HOME/.local/bin:$PATH"
 if ! command -v mise >/dev/null; then
   say "mise"
   curl -fsSL https://mise.run | sh
+else
+  # An mise installed earlier may predate `mise bootstrap --from/--from-dir/--config-dir`
+  # (2026.10.21): bring it up to date, through the package manager that installed it
+  say "mise (update)"
+  if command -v brew >/dev/null && brew list mise >/dev/null 2>&1; then
+    brew upgrade mise || true
+  else
+    mise self-update --yes || true
+  fi
+fi
+if ! mise bootstrap --help 2>/dev/null | grep -q -- '--config-dir'; then
+  say "mise $(mise --version) is too old for 'mise bootstrap --from': update it (2026.10.21 or later), then run this script again"
+  exit 1
 fi
 
 # ─── Global config ────────────────────────────────────────────────

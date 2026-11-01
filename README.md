@@ -11,7 +11,8 @@ curl -fsSL https://raw.githubusercontent.com/cyboooooorg/workstation/main/instal
 ```
 
 The script installs the prerequisites (git, curl; Homebrew on macOS), then mise into
-`~/.local/bin`, and runs:
+`~/.local/bin` (an mise already installed is updated instead: `mise bootstrap --from` needs
+2026.10.21 or later), and runs:
 
 ```sh
 mise bootstrap --from https://github.com/cyboooooorg/workstation.git \
