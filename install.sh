@@ -62,6 +62,16 @@ if [ -d "$HOME/.config/mise" ] && [ ! -L "$HOME/.config/mise" ] && [ -n "$(ls -A
   mv "$HOME/.config/mise" "$backup"
 fi
 
+# mise dotfiles refuses to overwrite an existing file: move the files that [dotfiles] links
+# (config.toml) aside, unless they already are links
+for file in "$HOME/.zshrc"; do
+  if [ -e "$file" ] && [ ! -L "$file" ]; then
+    backup="$file.bak-$(date +%Y%m%d-%H%M%S)"
+    say "${file#"$HOME"/} already exists: moved to $backup"
+    mv "$file" "$backup"
+  fi
+done
+
 # ─── Bootstrap ────────────────────────────────────────────────────
 say "mise bootstrap"
 mise bootstrap --from "$REPO" --from-dir "$DIR" --config-dir . --yes

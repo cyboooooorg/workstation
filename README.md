@@ -19,7 +19,9 @@ mise bootstrap --from https://github.com/cyboooooorg/workstation.git \
   --from-dir ~/Developer/workstation --config-dir . --yes
 ```
 
-An existing `~/.config/mise` is first moved to `~/.config/mise.bak-<date>`.
+An existing `~/.config/mise` is first moved to `~/.config/mise.bak-<date>`, and an existing
+`~/.zshrc` (not a link) to `~/.zshrc.bak-<date>`: copy the machine-specific lines you still need
+from the backup.
 
 On Linux, add the user to the docker group afterwards
 (`sudo usermod -aG docker $USER`, then log in again).
