@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+#MISE description="[global] Registers the mise docker-compose and docker-buildx binaries as docker CLI plugins"
+set -euo pipefail
+
+# The docker CLI only finds `docker compose` and `docker buildx` in ~/.docker/cli-plugins
+# (Docker Desktop used to provide them). Each plugin is linked to its mise shim, so the link
+# survives tool upgrades.
+PLUGINS="docker-compose docker-buildx"
+
+plugin_dir="$HOME/.docker/cli-plugins"
+shim_dir="${MISE_DATA_DIR:-$HOME/.local/share/mise}/shims"
+
+mkdir -p "$plugin_dir"
+for plugin in $PLUGINS; do
+  target="$plugin_dir/$plugin"
+  shim="$shim_dir/$plugin"
+
+  if [[ ! -x "$shim" ]]; then
+    echo "skipped: $plugin (no mise shim at $shim)"
+    continue
+  fi
+
+  if [[ -L "$target" && "$(readlink "$target")" == "$shim" ]]; then
+    echo "up to date: $target"
+    continue
+  fi
+
+  # Replaces a stale link or a plugin binary left by another installer
+  ln -sfn "$shim" "$target"
+  echo "linked: $target -> $shim"
+done

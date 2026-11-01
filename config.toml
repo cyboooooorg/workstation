@@ -80,9 +80,11 @@ builtin = "history-watch"
 # - herdr plugins (Terminal Browser, Terminal Code)
 # - global instructions for coding agents (dotfiles/agents/AGENTS.md), linked only for the
 #   agents installed on this machine: [dotfiles] entries cannot depend on that
+# - `docker compose` and `docker buildx`: the mise binaries linked into ~/.docker/cli-plugins,
+#   before the bootstrap task starts Traefik with `docker compose`
 [bootstrap.hooks.post-tools]
-description = "herdr plugins, coding agent instructions"
-run = ["mise run -q g:herdr:plugins", "mise run -q g:agents:link"]
+description = "herdr plugins, coding agent instructions, docker CLI plugins"
+run = ["mise run -q g:herdr:plugins", "mise run -q g:agents:link", "mise run -q g:docker:plugins"]
 
 [settings.pypi]
 uvx = false

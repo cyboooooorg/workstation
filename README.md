@@ -36,6 +36,7 @@ On Linux, add the user to the docker group afterwards
 | `mise tasks -g` | Global tasks (Bitwarden, SSH, herdr, Traefik, local services…) |
 | `mise run mail`, `cdb`, `tools`, `draw` | Starts a [local service](#local-services-on-demand); add `d` to stop it (`maild`…) |
 | `mise run dclean` | [Frees Docker disk space](#docker-cleanup) |
+| `mise run g:docker:plugins` | Links the mise `docker-compose` and `docker-buildx` into `~/.docker/cli-plugins` (run by `mise bootstrap`) |
 
 Changing a tool or a dotfile means changing this repository, then commit and push.
 
@@ -60,7 +61,7 @@ install.sh           new machine setup
 | | Linux (Debian) | macOS |
 | --- | --- | --- |
 | Docker engine | `docker-ce` (official Docker apt repository) | Colima (Homebrew), started at login |
-| docker CLI, compose, buildx | mise | mise |
+| docker CLI, compose, buildx | mise (compose and buildx linked into `~/.docker/cli-plugins`) | mise (same) |
 | Python (also runs the `pipx:` tools) | mise | mise (no Homebrew `python@*`) |
 | kitty | GitHub release (mise) + menu entry | Homebrew cask |
 | DBeaver | `dbeaver-ce` (official DBeaver apt repository, amd64 only) | Homebrew cask |
