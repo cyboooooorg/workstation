@@ -63,6 +63,7 @@ install.sh           new machine setup
 | docker CLI, compose, buildx | mise | mise |
 | Python (also runs the `pipx:` tools) | mise | mise (no Homebrew `python@*`) |
 | kitty | GitHub release (mise) + menu entry | Homebrew cask |
+| DBeaver | `dbeaver-ce` (official DBeaver apt repository, amd64 only) | Homebrew cask |
 | bash 5 | system | Homebrew (`/bin/bash` stays 3.2) |
 
 Tasks run with the first `bash` on the `PATH`. On macOS that is `/bin/bash` 3.2 until Homebrew is

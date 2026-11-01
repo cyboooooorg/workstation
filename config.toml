@@ -33,6 +33,15 @@ components = "stable"
 key = "https://download.docker.com/linux/debian/gpg"
 fingerprint = "9DC8 5822 9FC7 DD38 854A E2D8 8D81 803C 0EBF CD88"
 
+# DBeaver on Linux, from the official DBeaver repository (flat, amd64 only):
+# the Homebrew cask only exists for macOS
+[bootstrap.apt.sources.dbeaver]
+uris = "https://dbeaver.io/debs/dbeaver-ce"
+suites = "/"
+architectures = "amd64"
+key = "https://dbeaver.io/debs/dbeaver.gpg.key"
+fingerprint = "BDFB 19F6 8151 4B43 875D 16FA 132C 13A8 A330 F403"
+
 [bootstrap.packages]
 "apt:zsh" = "latest"
 "apt:containerd.io" = "latest"
@@ -43,6 +52,9 @@ fingerprint = "9DC8 5822 9FC7 DD38 854A E2D8 8D81 803C 0EBF CD88"
 # Docker engine on macOS (lightweight VM); the docker CLI still comes from mise
 "brew:colima" = { os = "macos" }
 "brew-cask:kitty" = { os = "macos" }
+# Database client: Homebrew cask on macOS, DBeaver apt repository on Linux (amd64 only)
+"brew-cask:dbeaver-community" = { os = "macos" }
+"apt:dbeaver-ce" = { os = "linux/x64" }
 # bash 5 for the tasks once Homebrew is on the PATH; /bin/bash stays 3.2, which the tasks
 # still support (a fresh machine runs them before ~/.zshrc puts Homebrew on the PATH)
 "brew:bash" = { os = "macos" }
