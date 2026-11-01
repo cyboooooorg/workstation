@@ -123,7 +123,7 @@ alias mtg="mise tasks -g"   # global tasks only
 alias mi="mise install"
 alias mu="mise use"
 
-command -v thefuck >/dev/null && eval "$(thefuck --alias)"
+command -v pay-respects >/dev/null && eval "$(pay-respects zsh --alias)"
 
 # Bitwarden session shared by the mise task g:bw:unlock (XDG_RUNTIME_DIR does not exist on macOS)
 [[ -r ${XDG_RUNTIME_DIR:-/tmp}/bw-session ]] && export BW_SESSION=$(<${XDG_RUNTIME_DIR:-/tmp}/bw-session)
