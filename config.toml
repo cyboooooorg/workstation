@@ -42,6 +42,9 @@ fingerprint = "9DC8 5822 9FC7 DD38 854A E2D8 8D81 803C 0EBF CD88"
 # Docker engine on macOS (lightweight VM); the docker CLI still comes from mise
 "brew:colima" = { os = "macos" }
 "brew-cask:kitty" = { os = "macos" }
+# bash 5 for the tasks once Homebrew is on the PATH; /bin/bash stays 3.2, which the tasks
+# still support (a fresh machine runs them before ~/.zshrc puts Homebrew on the PATH)
+"brew:bash" = { os = "macos" }
 
 # Starts Colima at login (ignored outside macOS).
 # Goes through sh to find colima under /opt/homebrew (Apple Silicon) as well as /usr/local (Intel).

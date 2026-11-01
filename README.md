@@ -60,6 +60,12 @@ install.sh           new machine setup
 | Docker engine | `docker-ce` (official Docker apt repository) | Colima (Homebrew), started at login |
 | docker CLI, compose, buildx | mise | mise |
 | kitty | GitHub release (mise) + menu entry | Homebrew cask |
+| bash 5 | system | Homebrew (`/bin/bash` stays 3.2) |
+
+Tasks run with the first `bash` on the `PATH`. On macOS that is `/bin/bash` 3.2 until Homebrew is
+on the `PATH` (first bootstrap, launchd), so tasks must stay compatible with bash 3.2: no
+associative arrays, `mapfile` or `${var,,}`, and `${arr[@]+"${arr[@]}"}` for arrays that may be
+empty under `set -u`.
 
 ## Coding agents
 
