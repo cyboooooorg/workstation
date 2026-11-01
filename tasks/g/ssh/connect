@@ -34,11 +34,11 @@ else
 fi
 
 if [[ "$scheme" == "sftp" || "${usage_sftp:-false}" == "true" ]]; then
-  exec "${prefix[@]}" sftp -P "$port" "${opts[@]}" "$target"
+  exec ${prefix[@]+"${prefix[@]}"} sftp -P "$port" "${opts[@]}" "$target"
 elif [[ -n "$commands" && "${usage_no_shell:-false}" == "true" ]]; then
-  exec "${prefix[@]}" ssh -p "$port" "${opts[@]}" "$target" 'bash -s' <<<"$commands"
+  exec ${prefix[@]+"${prefix[@]}"} ssh -p "$port" "${opts[@]}" "$target" 'bash -s' <<<"$commands"
 elif [[ -n "$commands" ]]; then
-  exec "${prefix[@]}" ssh -t -p "$port" "${opts[@]}" "$target" "$commands"$'\n''exec $SHELL -l'
+  exec ${prefix[@]+"${prefix[@]}"} ssh -t -p "$port" "${opts[@]}" "$target" "$commands"$'\n''exec $SHELL -l'
 else
-  exec "${prefix[@]}" ssh -p "$port" "${opts[@]}" "$target"
+  exec ${prefix[@]+"${prefix[@]}"} ssh -p "$port" "${opts[@]}" "$target"
 fi

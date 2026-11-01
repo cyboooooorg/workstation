@@ -96,7 +96,12 @@ bw_ssh_upsert() {
 ssh_needs_legacy_rsa() {
   local host=$1 port=${2:-22} out
   # Output captured first: with pipefail, the expected ssh failure would hide the grep result
-  out="$(timeout 10 ssh -p "$port" -o BatchMode=yes -o ConnectTimeout=5 -o PreferredAuthentications=none \
+  # timeout is GNU coreutils: missing on macOS (gtimeout with Homebrew coreutils)
+  local to=()
+  if command -v timeout >/dev/null; then to=(timeout 10)
+  elif command -v gtimeout >/dev/null; then to=(gtimeout 10)
+  fi
+  out="$(${to[@]+"${to[@]}"} ssh -p "$port" -o BatchMode=yes -o ConnectTimeout=5 -o PreferredAuthentications=none \
       -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$host" true 2>&1 </dev/null || true)"
   grep -q 'no matching host key type.*ssh-rsa' <<<"$out"
 }

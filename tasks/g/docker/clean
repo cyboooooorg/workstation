@@ -21,18 +21,19 @@ yes="${usage_yes:-false}"
 # Only version tags count (12, 1.1.72, v2.3): other tags name variants, not versions
 # (php:8.2-cli and php:5.6-cli, app:dev-local and app:dev-runtime), and are left alone.
 old_image_refs() {
-  local used repo tag id
-  local -A kept=()
-  used="$(docker ps -aq | xargs -r docker inspect --format '{{.Image}}')"
+  # "repository<TAB>id" lines instead of an associative array: macOS ships bash 3.2
+  local used repo tag id kept="" kept_id
+  used="$(docker ps -aq | xargs docker inspect --format '{{.Image}}' 2>/dev/null || true)"
   # `docker images` lists the newest first: the first image of each repository is kept
   while IFS=$'\t' read -r repo tag id; do
     [[ "$repo" != "<none>" && "$tag" =~ ^v?[0-9]+(\.[0-9]+)*$ ]] || continue
-    if [[ -z "${kept[$repo]:-}" ]]; then
-      kept[$repo]="$id"
+    kept_id="$(awk -F'\t' -v r="$repo" '$1 == r { print $2; exit }' <<<"$kept")"
+    if [[ -z "$kept_id" ]]; then
+      kept+="$repo"$'\t'"$id"$'\n'
       continue
     fi
     # Another tag of the kept image, or an image a container uses
-    [[ "$id" == "${kept[$repo]}" ]] && continue
+    [[ "$id" == "$kept_id" ]] && continue
     grep -qxF "$id" <<<"$used" && continue
     echo "$repo:$tag"
   done < <(docker images --no-trunc --format '{{.Repository}}\t{{.Tag}}\t{{.ID}}')
