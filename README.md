@@ -60,7 +60,7 @@ install.sh           new machine setup
 
 | | Linux (Debian) | macOS |
 | --- | --- | --- |
-| Docker engine | `docker-ce` (official Docker apt repository) | Colima (Homebrew), started at login |
+| Docker engine | `docker-ce` (official Docker apt repository) | Colima (Homebrew), started at login with 6 CPUs and 6 GB of memory |
 | docker CLI, compose, buildx | mise (compose and buildx linked into `~/.docker/cli-plugins`) | mise (same) |
 | Python (also runs the `pipx:` tools) | mise | mise (no Homebrew `python@*`) |
 | kitty | GitHub release (mise) + menu entry | Homebrew cask |

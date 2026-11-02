@@ -61,9 +61,11 @@ fingerprint = "BDFB 19F6 8151 4B43 875D 16FA 132C 13A8 A330 F403"
 
 # Starts Colima at login (ignored outside macOS).
 # Goes through sh to find colima under /opt/homebrew (Apple Silicon) as well as /usr/local (Intel).
+# VM size: 6 CPUs and 6 GB, enough for memory-hungry local apps (map-generator peaks
+# above 2 GB on large worlds); keep it in sync with tasks/g/traefik/up.
 [bootstrap.macos.launchd.agents.colima]
 program = "/bin/sh"
-args = ["-c", "colima start"]
+args = ["-c", "colima start --cpu 6 --memory 6"]
 run_at_load = true
 environment = { PATH = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin" }
 
