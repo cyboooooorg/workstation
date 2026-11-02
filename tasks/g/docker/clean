@@ -7,6 +7,7 @@
 #USAGE flag "-n --dry-run" help="Only show the disk usage and the older images --old-images would remove"
 #USAGE flag "-y --yes" help="Do not ask for confirmation"
 set -euo pipefail
+source "$(dirname "$0")/../_docker.sh"
 
 step() { printf '\n\033[1;34m==> %s\033[0m\n' "$*"; }
 
@@ -39,8 +40,13 @@ old_image_refs() {
   done < <(docker images --no-trunc --format '{{.Repository}}\t{{.Tag}}\t{{.ID}}')
 }
 
-if ! docker info >/dev/null 2>&1; then
-  echo "Docker is not responding: start the engine, then retry." >&2
+status=0
+docker_responds 20 || status=$?
+if [[ $status -eq 2 ]]; then
+  docker_hung_message
+  exit 1
+elif [[ $status -ne 0 ]]; then
+  echo "Docker is not running: start the engine, then retry." >&2
   exit 1
 fi
 

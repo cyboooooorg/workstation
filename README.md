@@ -52,6 +52,7 @@ tasks/
   g/                 global `g:*` tasks (agents, bw, docker, herdr, ssh, traefik, update,
                      and one up / down pair per local service)
   g/_stack.sh        functions shared by the local service tasks
+  g/_docker.sh       Docker engine check shared by the traefik and docker tasks
 stacks/traefik/      local reverse proxy, one instance for the whole machine
 stacks/<service>/    local services started on demand behind Traefik
                      (chartdb, excalidraw, it-tools, mailpit)
@@ -98,6 +99,8 @@ Instructions shipped by a project take precedence over these.
 
 Traefik listens on `127.0.0.1:80` and `[::1]:80`.
 Dashboard: [traefik.localhost/dashboard](http://traefik.localhost/dashboard/).
+`mise run g:traefik:up` (also the last step of `mise bootstrap`) gives up after 20 s when the
+Docker engine is stuck, and prints the command that restarts it, instead of waiting forever.
 In a project's `compose.yaml`:
 
 ```yaml

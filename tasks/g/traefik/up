@@ -1,11 +1,20 @@
 #!/usr/bin/env bash
 #MISE description="[global] Starts the local Traefik reverse proxy (http://traefik.localhost/dashboard/)"
 set -euo pipefail
+source "$(dirname "$0")/../_docker.sh"
 
 stack="$(cd ~/.config/mise && pwd -P)/stacks/traefik"
 
+# A stuck engine would block `mise bootstrap` forever: give up after 20 s
+status=0
+docker_responds 20 || status=$?
+if [[ $status -eq 2 ]]; then
+  docker_hung_message
+  exit 1
+fi
+
 # On macOS, the Docker engine is the Colima VM: start it if it is not running
-if ! docker info >/dev/null 2>&1; then
+if [[ $status -ne 0 ]]; then
   if [[ "$(uname)" == "Darwin" ]] && command -v colima >/dev/null; then
     # Same VM size as the login agent in config.toml
     colima start --cpu 6 --memory 6
