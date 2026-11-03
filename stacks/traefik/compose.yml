@@ -40,7 +40,7 @@ services:
   # and to the apps running on the host (dynamic files in ./traefik/dynamic).
   # ---------------------------------------------------------------------------------------------------- #
   proxy-service-traefik:
-    image: traefik:v3.7.16
+    image: traefik:v3.7.17
     container_name: traefik
     restart: unless-stopped
     volumes:
