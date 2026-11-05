@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+#MISE description="[global] Removes the graphify setup of mise run graph from the current git repository"
+#MISE alias="graphd"
+set -euo pipefail
+source "$(dirname "$0")/_lib.sh"
+
+graphify_enter_repo
+echo "graphify: removing from $PWD"
+
+graphify_claude_md_unlink
+graphify_hooks_remove
+rm -rf .claude/skills/graphify "$GRAPHIFY_MD" graphify-out
+rmdir .claude/skills .claude 2>/dev/null || true
+graphify_exclude_remove
+
+echo "Done. Restart Claude Code in this repository to drop the hooks."

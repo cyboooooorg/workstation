@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+#MISE description="[global] Sets up graphify in the current git repository, for you only: /graphify skill, code graph, Claude Code hooks"
+#MISE alias="graph"
+set -euo pipefail
+source "$(dirname "$0")/_lib.sh"
+
+if ! command -v graphify >/dev/null; then
+  echo "graphify is not installed: run mise install" >&2
+  exit 1
+fi
+
+graphify_enter_repo
+echo "graphify: setting up $PWD"
+
+# graphify writes its skill, instructions and hooks into tracked files (CLAUDE.md,
+# .claude/settings.json). Let it write them into a scratch directory, then put each
+# piece into an ignored file of this repository.
+scratch="$(mktemp -d)"
+trap 'rm -rf "$scratch"' EXIT
+(
+  cd "$scratch"
+  graphify install --project >/dev/null
+  graphify claude install --project >/dev/null
+)
+
+# Skill
+mkdir -p .claude/skills
+rm -rf .claude/skills/graphify
+cp -R "$scratch/.claude/skills/graphify" .claude/skills/graphify
+echo "  skill        ->  .claude/skills/graphify/"
+
+# Agent instructions: the skill registration plus the query-first rules
+{
+  echo "<!-- Written by mise run graph: local graphify setup, not committed. Removed by mise run graphd. -->"
+  echo
+  cat "$scratch/.claude/CLAUDE.md"
+  echo
+  cat "$scratch/CLAUDE.md"
+} >"$GRAPHIFY_MD"
+echo "  instructions ->  $GRAPHIFY_MD"
+
+# CLAUDE.md: an existing file only gets the import line (the one committable change);
+# a missing one is created and ignored. A CLAUDE.md listed in our block is one we created.
+excluded=(/.claude/skills/graphify/ "/$GRAPHIFY_MD" /.claude/settings.local.json /graphify-out/)
+if graphify_excluded | grep -qxF /CLAUDE.md || [[ ! -e CLAUDE.md ]]; then
+  excluded+=(/CLAUDE.md)
+fi
+if [[ ! -e CLAUDE.md ]]; then
+  echo "$GRAPHIFY_IMPORT" >CLAUDE.md
+  echo "  CLAUDE.md    ->  created, ignored"
+elif ! grep -qxF -- "$GRAPHIFY_IMPORT" CLAUDE.md; then
+  [[ -z "$(tail -c 1 CLAUDE.md)" ]] || echo >>CLAUDE.md
+  printf '\n%s\n' "$GRAPHIFY_IMPORT" >>CLAUDE.md
+  echo "  CLAUDE.md    ->  import line appended (commit it, or leave it out)"
+else
+  echo "  CLAUDE.md    ->  import line already there"
+fi
+
+# Hooks: merged into the local settings, replacing any earlier graphify hooks
+local_settings=.claude/settings.local.json
+[[ -f "$local_settings" ]] || echo '{}' >"$local_settings"
+merged="$(mktemp)"
+jq --slurpfile new "$scratch/.claude/settings.json" "$GRAPHIFY_JQ_IS_OURS"'
+  reduce ($new[0].hooks | to_entries[]) as $e (.;
+    .hooks[$e.key] = ([(.hooks[$e.key] // [])[] | select(ours | not)] + $e.value))' \
+  "$local_settings" >"$merged"
+mv "$merged" "$local_settings"
+echo "  hooks        ->  $local_settings"
+
+graphify_exclude_write "${excluded[@]}"
+echo "  ignored      ->  $exclude_file"
+
+# Code graph: tree-sitter only, no LLM call (GRAPHIFY_BACKEND=none also keeps community
+# labeling local)
+echo "graphify: building the code graph"
+GRAPHIFY_BACKEND=none graphify update .
+
+echo
+echo "Done. Restart Claude Code in this repository to load the hooks. Undo with: mise run graphd"

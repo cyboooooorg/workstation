@@ -37,6 +37,7 @@ On Linux, add the user to the docker group afterwards
 | `mise run mail`, `cdb`, `tools`, `draw` | Starts a [local service](#local-services-on-demand); add `d` to stop it (`maild`…) |
 | `mise run dclean` | [Frees Docker disk space](#docker-cleanup) |
 | `mise run vm` | Resizes the [Docker VM](#docker-vm-size-macos) (macOS) |
+| `mise run graph` / `graphd` | Sets up / removes [graphify](#graphify-a-code-graph-for-the-agent) in the current repository |
 | `mise run g:docker:plugins` | Links the mise `docker-compose` and `docker-buildx` into `~/.docker/cli-plugins` (run by `mise bootstrap`) |
 
 Changing a tool or a dotfile means changing this repository, then commit and push.
@@ -50,8 +51,8 @@ dotfiles/            files linked into ~ (zshrc) or rendered (kitty.desktop, Lin
   agents/AGENTS.md   global instructions for coding agents (linked by g:agents:link)
 tasks/
   bootstrap          last step of `mise bootstrap`: starts Traefik
-  g/                 global `g:*` tasks (agents, bw, claude, docker, herdr, ssh, traefik,
-                     update, and one up / down pair per local service)
+  g/                 global `g:*` tasks (agents, bw, claude, docker, graphify, herdr, ssh,
+                     traefik, update, and one up / down pair per local service)
   g/_stack.sh        functions shared by the local service tasks
   g/_docker.sh       Docker engine check shared by the traefik and docker tasks
 stacks/traefik/      local reverse proxy, one instance for the whole machine
@@ -78,7 +79,8 @@ empty under `set -u`.
 
 [`dotfiles/agents/AGENTS.md`](dotfiles/agents/AGENTS.md) holds the rules every coding agent
 follows in every project: English documentation (French on request), documentation shipped with
-each change, Conventional Commits without emoji.
+each change, Conventional Commits without emoji, and when to back off from
+[graphify](#graphify-a-code-graph-for-the-agent).
 
 `mise bootstrap` runs `mise run g:agents:link` once the tools are installed. The task links this
 file to the global instruction file of every agent whose command is on the `PATH`:
@@ -105,6 +107,42 @@ plugins and updates the installed ones (so `mise run up` keeps them current):
 
 To add one, add a `plugin@marketplace` line to `tasks/g/claude/plugins`. An update applies when
 Claude Code restarts.
+
+### graphify: a code graph for the agent
+
+[graphify](https://github.com/Graphify-Labs/graphify) (installed by mise as `pipx:graphifyy`)
+maps a repository into a knowledge graph that Claude Code queries (`graphify query`, `path`,
+`explain`) instead of grepping and reading files one by one. Useful on a large or unfamiliar
+codebase; pointless on a small one.
+
+From anywhere inside a git repository:
+
+```sh
+mise run graph    # set up, or refresh the skill, hooks and graph
+mise run graphd   # remove everything it added
+```
+
+`mise run graph` sets graphify up for you only:
+
+| What | Where | Committed |
+| --- | --- | --- |
+| `/graphify` skill | `.claude/skills/graphify/` | no |
+| Instructions for the agent (query the graph first) | `.claude/graphify.md` | no |
+| Hooks nudging the agent towards the graph before Bash/Grep/Read/Glob (advisory, never blocking) | `.claude/settings.local.json`, merged with what is there | no |
+| Code graph, report, `graph.html` | `graphify-out/` | no |
+| `CLAUDE.md` | an existing one gets one line: `Local graphify setup (ignore if the file is missing): @.claude/graphify.md`; a missing one is created with that line | only the line added to an existing file, if you want it |
+
+- "Not committed" means listed in a marked block of `.git/info/exclude`, which git never shares.
+  Tracked files such as `.claude/settings.json` are never touched. A teammate without the setup
+  sees at most the import line, and Claude Code skips an import whose file is missing.
+- The graph is built from the code only, locally with tree-sitter: no LLM call, nothing sent
+  anywhere (`GRAPHIFY_BACKEND=none`). The agent keeps it current with `graphify update .` after
+  editing code; running `mise run graph` again rebuilds it too.
+- Restart Claude Code in the repository after either command, so it loads or drops the hooks.
+- When the hooks get in the way, the agents are told (in
+  [`AGENTS.md`](dotfiles/agents/AGENTS.md)) to stop and suggest `mise run graphd`.
+- graphify logs every query to `~/.cache/graphify-queries.log`; set
+  `GRAPHIFY_QUERY_LOG_DISABLE=1` to turn that off.
 
 ## Traefik: exposing a project on `*.localhost`
 
