@@ -8,6 +8,7 @@ claude = "latest"
 docker-cli = "latest"
 docker-compose = "latest"
 gh = "latest"
+glab = "latest"
 "github:docker/buildx" = { version = "latest", bin = "docker-buildx" }
 # On macOS, kitty comes from Homebrew (cask): the GitHub release only ships a .dmg there
 "github:kovidgoyal/kitty" = { version = "latest", asset_pattern = "kitty-*-x86_64.txz", os = ["linux/x64"] }
