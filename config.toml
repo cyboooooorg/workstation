@@ -61,11 +61,11 @@ fingerprint = "BDFB 19F6 8151 4B43 875D 16FA 132C 13A8 A330 F403"
 
 # Starts Colima at login (ignored outside macOS).
 # Goes through sh to find colima under /opt/homebrew (Apple Silicon) as well as /usr/local (Intel).
-# VM size: 6 CPUs and 6 GB, enough for memory-hungry local apps (map-generator peaks
-# above 2 GB on large worlds); keep it in sync with tasks/g/traefik/up.
+# No size here: Colima reuses the one saved in ~/.colima/default/colima.yaml, chosen by the
+# post-packages hook below on the first bootstrap, or later with `mise run vm`.
 [bootstrap.macos.launchd.agents.colima]
 program = "/bin/sh"
-args = ["-c", "colima start --cpu 6 --memory 6"]
+args = ["-c", "colima start"]
 run_at_load = true
 environment = { PATH = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin" }
 
@@ -84,6 +84,12 @@ builtin = "history-watch"
 #   agents installed on this machine: [dotfiles] entries cannot depend on that
 # - `docker compose` and `docker buildx`: the mise binaries linked into ~/.docker/cli-plugins,
 #   before the bootstrap task starts Traefik with `docker compose`
+# Once Colima is installed, and before the launchd agent above starts it: asks for the size
+# of the Docker VM (macOS, first bootstrap only; nothing to do on Linux)
+[bootstrap.hooks.post-packages]
+description = "Colima VM size"
+run = "mise run -q g:colima:resources --if-missing"
+
 [bootstrap.hooks.post-tools]
 description = "herdr plugins, coding agent instructions, docker CLI plugins"
 run = ["mise run -q g:herdr:plugins", "mise run -q g:agents:link", "mise run -q g:docker:plugins"]

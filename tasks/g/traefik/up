@@ -16,8 +16,8 @@ fi
 # On macOS, the Docker engine is the Colima VM: start it if it is not running
 if [[ $status -ne 0 ]]; then
   if [[ "$(uname)" == "Darwin" ]] && command -v colima >/dev/null; then
-    # Same VM size as the login agent in config.toml
-    colima start --cpu 6 --memory 6
+    # Size saved by g:colima:resources (mise run vm)
+    colima start
   else
     echo "Docker is not responding: start the engine (or add $USER to the docker group), then retry." >&2
     exit 1

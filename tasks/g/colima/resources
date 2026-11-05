@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+#MISE description="[global] Sizes the Colima Docker VM (macOS): CPUs, memory and disk, asked with defaults based on this Mac"
+#MISE alias="vm"
+#USAGE flag "--if-missing" help="Do nothing when the VM already exists (used by mise bootstrap)"
+#USAGE flag "-y --yes" help="Do not ask: use the recommended values"
+set -euo pipefail
+
+# Functional minimum: Traefik plus a project stack; memory-hungry local apps (map-generator
+# peaks above 2 GB on large worlds) need the 4 GB
+MIN_CPU=2
+MIN_MEMORY=4   # GiB
+MIN_DISK=30    # GiB
+DEFAULT_DISK=100
+
+if_missing="${usage_if_missing:-false}"
+yes="${usage_yes:-false}"
+config="$HOME/.colima/default/colima.yaml"
+
+if [[ "$(uname)" != "Darwin" ]]; then
+  echo "Docker runs natively on Linux: there is no VM to size."
+  exit 0
+fi
+if ! command -v colima >/dev/null; then
+  echo "colima is not installed (brew install colima)." >&2
+  exit 1
+fi
+
+# Current size, from the config Colima saves on the first start
+current_cpu="" current_memory="" current_disk=""
+if [[ -f "$config" ]]; then
+  if [[ "$if_missing" == true ]]; then
+    echo "Colima VM already sized ($config): change it with \`mise run vm\`."
+    exit 0
+  fi
+  yaml() { awk -v key="$1" '$1 == key":" { sub(/\..*/, "", $2); print $2; exit }' "$config"; }
+  current_cpu="$(yaml cpu)"
+  current_memory="$(yaml memory)"
+  current_disk="$(yaml disk)"
+fi
+
+# Capacity of this Mac
+host_cpu="$(sysctl -n hw.ncpu)"
+host_memory=$(($(sysctl -n hw.memsize) / 1024 / 1024 / 1024))
+free_disk="$(df -g "$HOME" | awk 'NR == 2 { print $4 }')"
+
+max() { if (($1 > $2)); then echo "$1"; else echo "$2"; fi; }
+min() { if (($1 < $2)); then echo "$1"; else echo "$2"; fi; }
+
+# Recommended: half the CPUs and half the memory (the rest stays with macOS),
+# Colima's 100 GiB disk unless less than twice that is free
+rec_cpu=$(max "$MIN_CPU" $((host_cpu / 2)))
+rec_memory=$(max "$MIN_MEMORY" $((host_memory / 2)))
+rec_disk=$(max "$MIN_DISK" "$(min "$DEFAULT_DISK" $((free_disk / 2)))")
+
+# Upper bounds: every CPU, all the memory but 2 GiB for macOS, the free disk space.
+# The disk of an existing VM can only grow.
+max_cpu="$host_cpu"
+max_memory=$((host_memory - 2))
+max_disk=$((free_disk + ${current_disk:-0}))
+min_disk="$MIN_DISK"
+if [[ -n "$current_disk" ]]; then
+  min_disk="$(max "$MIN_DISK" "$current_disk")"
+  rec_disk="$(max "$rec_disk" "$current_disk")"
+fi
+if ((max_memory < MIN_MEMORY)); then
+  echo "This Mac has $host_memory GiB of memory: the VM needs $MIN_MEMORY GiB, plus 2 GiB left to macOS." >&2
+  exit 1
+fi
+if ((max_disk < min_disk)); then
+  echo "Only $free_disk GiB of disk are free: the VM needs $min_disk GiB." >&2
+  exit 1
+fi
+
+# Asks through the terminal even when stdin is a pipe (curl … | sh); without a terminal,
+# or with --yes, the recommended values are used
+interactive=false
+if [[ "$yes" != true ]] && { exec 3</dev/tty; } 2>/dev/null; then
+  interactive=true
+fi
+
+# ask <label> <unit> <min> <max> <recommended> <current>: prints the chosen value
+ask() {
+  local label="$1" unit="$2" low="$3" high="$4" rec="$5" cur="$6" answer hint
+  if [[ "$interactive" != true ]]; then
+    echo "$rec"
+    return
+  fi
+  hint="minimum $low, maximum $high"
+  [[ -n "$cur" ]] && hint="$hint, current $cur"
+  while true; do
+    printf '  %s (%s; %s) [%s]: ' "$label" "$unit" "$hint" "$rec" >/dev/tty
+    read -r answer <&3 || answer=""
+    answer="${answer:-$rec}"
+    if [[ "$answer" =~ ^[0-9]+$ ]] && ((10#$answer >= low && 10#$answer <= high)); then
+      answer=$((10#$answer))
+      echo "$answer"
+      return
+    fi
+    printf '  Enter a whole number between %s and %s.\n' "$low" "$high" >/dev/tty
+  done
+}
+
+printf '\nColima Docker VM: this Mac has %s CPUs, %s GiB of memory and %s GiB of free disk.\n' \
+  "$host_cpu" "$host_memory" "$free_disk"
+[[ "$interactive" == true ]] && echo "Press Enter to keep the recommended value in brackets."
+cpu="$(ask CPUs count "$MIN_CPU" "$max_cpu" "$rec_cpu" "$current_cpu")"
+memory="$(ask Memory GiB "$MIN_MEMORY" "$max_memory" "$rec_memory" "$current_memory")"
+disk="$(ask Disk "GiB, can only grow later" "$min_disk" "$max_disk" "$rec_disk" "$current_disk")"
+echo "VM size: $cpu CPUs, $memory GiB of memory, $disk GiB of disk."
+
+if [[ "$cpu" == "$current_cpu" && "$memory" == "$current_memory" && "$disk" == "$current_disk" ]]; then
+  echo "Unchanged."
+  exit 0
+fi
+
+# A running VM only takes the new size after a restart: its containers stop, and the ones
+# with a restart policy (Traefik) come back
+if colima status >/dev/null 2>&1; then
+  echo "Restarting the VM to apply the new size."
+  colima stop
+fi
+colima start --cpu "$cpu" --memory "$memory" --disk "$disk"

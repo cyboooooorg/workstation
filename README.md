@@ -36,6 +36,7 @@ On Linux, add the user to the docker group afterwards
 | `mise tasks -g` | Global tasks (Bitwarden, SSH, herdr, Traefik, local services…) |
 | `mise run mail`, `cdb`, `tools`, `draw` | Starts a [local service](#local-services-on-demand); add `d` to stop it (`maild`…) |
 | `mise run dclean` | [Frees Docker disk space](#docker-cleanup) |
+| `mise run vm` | Resizes the [Docker VM](#docker-vm-size-macos) (macOS) |
 | `mise run g:docker:plugins` | Links the mise `docker-compose` and `docker-buildx` into `~/.docker/cli-plugins` (run by `mise bootstrap`) |
 
 Changing a tool or a dotfile means changing this repository, then commit and push.
@@ -61,7 +62,7 @@ install.sh           new machine setup
 
 | | Linux (Debian) | macOS |
 | --- | --- | --- |
-| Docker engine | `docker-ce` (official Docker apt repository) | Colima (Homebrew), started at login with 6 CPUs and 6 GB of memory |
+| Docker engine | `docker-ce` (official Docker apt repository) | Colima (Homebrew), started at login, [sized on the first bootstrap](#docker-vm-size-macos) |
 | docker CLI, compose, buildx | mise (compose and buildx linked into `~/.docker/cli-plugins`) | mise (same) |
 | Python (also runs the `pipx:` tools) | mise | mise (no Homebrew `python@*`) |
 | kitty | GitHub release (mise) + menu entry | Homebrew cask |
@@ -164,6 +165,30 @@ mise run dclean --dry-run       # disk usage, and the images --old-images would 
 
 `--old-images` only looks at version tags (`12`, `1.1.72`, `v2.3`): other tags name variants,
 such as `php:8.2-cli` and `php:5.6-cli`, and are left alone. Add `--yes` to skip the confirmation.
+
+## Docker VM size (macOS)
+
+On macOS, Docker runs in the Colima VM. The first `mise bootstrap` asks for its size right after
+installing Colima, before the login agent starts it. Each question shows the minimum, the maximum
+and, in brackets, the value recommended for this Mac: press Enter to keep it.
+
+| Resource | Minimum | Recommended | Maximum |
+| --- | --- | --- | --- |
+| CPUs | 2 | half of the Mac's CPUs | all of them |
+| Memory | 4 GiB (memory-hungry local apps) | half of the Mac's memory | all but 2 GiB |
+| Disk | 30 GiB | 100 GiB, or half the free space if less | the free space |
+
+Without a terminal, the recommended values are used. Colima saves the size in
+`~/.colima/default/colima.yaml`; later bootstraps keep it, and the login agent and
+`g:traefik:up` start the VM with it.
+
+```sh
+mise run vm         # g:colima:resources: asks again (current values shown), restarts the VM
+mise run vm --yes   # applies the recommended values without asking
+```
+
+Restarting the VM stops its containers; those with a restart policy, such as Traefik, come back.
+The disk can only grow. On Linux, Docker runs natively: there is no VM to size.
 
 ## Secrets
 
