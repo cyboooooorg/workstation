@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+#MISE description="[global] Installs the missing Claude Code plugins and updates the installed ones (Superpowers)"
+set -euo pipefail
+
+# Wanted Claude Code plugins: "plugin@marketplace", installed in the user scope.
+# The marketplaces must already be known to Claude Code (claude-plugins-official is built in).
+PLUGINS='
+superpowers@claude-plugins-official
+'
+
+if ! command -v claude >/dev/null; then
+  echo "claude is not installed: no plugins to install."
+  exit 0
+fi
+
+# Fresh catalogs, so that install and update see the latest versions
+while read -r marketplace; do
+  claude plugin marketplace update "$marketplace" >/dev/null
+done < <(sed -n 's/.*@//p' <<<"$PLUGINS" | sort -u)
+
+installed="$(claude plugin list 2>/dev/null || true)"
+while read -r plugin; do
+  [[ -n "$plugin" ]] || continue
+  if grep -qF -- "$plugin" <<<"$installed"; then
+    echo "updating: $plugin"
+    claude plugin update "$plugin"
+  else
+    echo "installing: $plugin"
+    claude plugin install "$plugin"
+  fi
+done <<<"$PLUGINS"

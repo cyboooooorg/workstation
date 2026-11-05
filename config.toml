@@ -92,8 +92,8 @@ description = "Colima VM size"
 run = "mise run -q g:colima:resources --if-missing"
 
 [bootstrap.hooks.post-tools]
-description = "herdr plugins, coding agent instructions, docker CLI plugins"
-run = ["mise run -q g:herdr:plugins", "mise run -q g:agents:link", "mise run -q g:docker:plugins"]
+description = "herdr plugins, coding agent instructions, Claude Code plugins, docker CLI plugins"
+run = ["mise run -q g:herdr:plugins", "mise run -q g:agents:link", "mise run -q g:claude:plugins", "mise run -q g:docker:plugins"]
 
 [settings.pypi]
 uvx = false

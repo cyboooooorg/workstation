@@ -50,8 +50,8 @@ dotfiles/            files linked into ~ (zshrc) or rendered (kitty.desktop, Lin
   agents/AGENTS.md   global instructions for coding agents (linked by g:agents:link)
 tasks/
   bootstrap          last step of `mise bootstrap`: starts Traefik
-  g/                 global `g:*` tasks (agents, bw, docker, herdr, ssh, traefik, update,
-                     and one up / down pair per local service)
+  g/                 global `g:*` tasks (agents, bw, claude, docker, herdr, ssh, traefik,
+                     update, and one up / down pair per local service)
   g/_stack.sh        functions shared by the local service tasks
   g/_docker.sh       Docker engine check shared by the traefik and docker tasks
 stacks/traefik/      local reverse proxy, one instance for the whole machine
@@ -95,6 +95,16 @@ file to the global instruction file of every agent whose command is on the `PATH
   `mise run g:agents:link` (installing an agent later does not need a full `mise bootstrap`).
 
 Instructions shipped by a project take precedence over these.
+
+`mise bootstrap` also runs `mise run g:claude:plugins`, which installs the missing Claude Code
+plugins and updates the installed ones (so `mise run up` keeps them current):
+
+| Plugin | Marketplace |
+| --- | --- |
+| [Superpowers](https://github.com/obra/superpowers) | `claude-plugins-official` (built in) |
+
+To add one, add a `plugin@marketplace` line to `tasks/g/claude/plugins`. An update applies when
+Claude Code restarts.
 
 ## Traefik: exposing a project on `*.localhost`
 
