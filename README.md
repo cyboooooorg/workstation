@@ -108,6 +108,19 @@ plugins and updates the installed ones (so `mise run up` keeps them current):
 To add one, add a `plugin@marketplace` line to `tasks/g/claude/plugins`. An update applies when
 Claude Code restarts.
 
+It then runs two more tasks, both safe to run again:
+
+- `mise run g:claude:skills` installs the global skills (in `~/.claude/skills`, loaded in every
+  project) with `npx skills add --global`, which also fetches their latest version:
+  [curl.md](https://curl.md/docs/skills), which fetches web pages as markdown that costs fewer
+  tokens. To add one, add its source to `tasks/g/claude/skills`.
+- `mise run g:claude:rtk` hooks [rtk](https://github.com/rtk-ai/rtk) (installed by mise) into
+  Claude Code: a `PreToolUse` hook in `~/.claude/settings.json` condenses the output of Bash
+  commands. Only the hook is installed (`rtk init -g --hook-only`): the full setup would add
+  `@RTK.md` to `~/.claude/CLAUDE.md`, which links to this repository. `rtk gain` shows the
+  tokens saved; `rtk bypass <command>` runs a command without filtering. rtk telemetry stays
+  off unless `rtk telemetry enable` is run.
+
 ### graphify: a code graph for the agent
 
 [graphify](https://github.com/Graphify-Labs/graphify) (installed by mise as `pipx:graphifyy`)

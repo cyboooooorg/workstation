@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+#MISE description="[global] Hooks rtk into Claude Code: the output of Bash commands is condensed to save tokens"
+set -euo pipefail
+
+if ! command -v claude >/dev/null || ! command -v rtk >/dev/null; then
+  echo "claude or rtk is not installed: no hook to install."
+  exit 0
+fi
+
+# Hook only (PreToolUse in ~/.claude/settings.json): the full setup would also add `@RTK.md`
+# to ~/.claude/CLAUDE.md, which links to dotfiles/agents/AGENTS.md in this repository
+rtk init -g --hook-only --auto-patch

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+#MISE description="[global] Installs or updates the global Claude Code skills (curl.md), loaded in every project"
+set -euo pipefail
+
+# Wanted skills: one `npx skills add` source per line, installed in the user scope
+# (~/.claude/skills) so that every project loads them.
+# Adding a source again fetches its latest version.
+SOURCES='
+https://curl.md
+'
+
+if ! command -v claude >/dev/null; then
+  echo "claude is not installed: no skills to install."
+  exit 0
+fi
+
+while read -r source; do
+  [[ -n "$source" ]] || continue
+  echo "installing: $source"
+  npx -y skills add "$source" --global --agent claude-code --yes
+done <<<"$SOURCES"
