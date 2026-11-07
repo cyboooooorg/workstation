@@ -108,8 +108,14 @@ plugins and updates the installed ones (so `mise run up` keeps them current):
 To add one, add a `plugin@marketplace` line to `tasks/g/claude/plugins`. An update applies when
 Claude Code restarts.
 
-It then runs two more tasks, both safe to run again:
+It then runs three more tasks, all safe to run again:
 
+- `mise run g:claude:settings` merges the wanted user settings into `~/.claude/settings.json`;
+  those keys win, every other setting is kept. Today: subagents run on Sonnet
+  (`CLAUDE_CODE_SUBAGENT_MODEL=claude-sonnet-5-5`) and forked subagents are off
+  (`CLAUDE_CODE_FORK_SUBAGENT=0`). To change them, edit the JSON in
+  `tasks/g/claude/settings`; a setting removed from it is not removed from
+  `~/.claude/settings.json`. Settings apply when Claude Code restarts.
 - `mise run g:claude:skills` installs the global skills (in `~/.claude/skills`, loaded in every
   project) with `npx skills add --global`, which also fetches their latest version:
   [curl.md](https://curl.md/docs/skills), which fetches web pages as markdown that costs fewer

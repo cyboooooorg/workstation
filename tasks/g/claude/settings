@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+#MISE description="[global] Merges the wanted settings into ~/.claude/settings.json (subagent model, no forked subagents)"
+set -euo pipefail
+
+# Wanted Claude Code user settings, deep-merged into ~/.claude/settings.json:
+# these keys win, every other setting (hooks, permissions, plugins…) is kept.
+SETTINGS='{
+  "env": {
+    "CLAUDE_CODE_SUBAGENT_MODEL": "claude-sonnet-5-5",
+    "CLAUDE_CODE_FORK_SUBAGENT": "0"
+  }
+}'
+
+if ! command -v claude >/dev/null; then
+  echo "claude is not installed: no settings to apply."
+  exit 0
+fi
+
+file="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/settings.json"
+mkdir -p "$(dirname "$file")"
+[[ -s "$file" ]] || echo '{}' >"$file"
+
+merged="$(jq --argjson wanted "$SETTINGS" '. * $wanted' "$file")"
+if [[ "$merged" == "$(jq . "$file")" ]]; then
+  echo "up to date: $file"
+else
+  # Write in place: keeps the file's permissions (and a link, if it is one)
+  printf '%s\n' "$merged" >"$file"
+  echo "updated: $file"
+fi
