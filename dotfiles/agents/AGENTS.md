@@ -62,6 +62,20 @@ refactor(ssh)!: read server list from Bitwarden only
 BREAKING CHANGE: ~/.ssh/servers.yml is no longer read.
 ```
 
+## Session length
+
+Every turn resends the whole conversation, so a long session costs more on
+each turn that follows.
+
+- When a topic is done (a pull request opened, a question answered, a bug
+  fixed) and the user moves on to something unrelated, suggest a `/clear`
+  in one line before starting, and say what to carry over if anything
+  (a branch, a file, a pull request number).
+- Past about 200k tokens of context, suggest a `/compact` that keeps the
+  decisions, the branch and the open questions.
+- Suggest it once per topic, never twice in a row, and never in the middle
+  of a task.
+
 ## graphify
 
 A repository may carry a local [graphify](https://github.com/Graphify-Labs/graphify) setup
