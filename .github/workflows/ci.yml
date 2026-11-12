@@ -1,0 +1,52 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
+      - name: Lint
+        run: mise run check
+      - name: Conventional Commits
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          git fetch origin "$BASE_REF"
+          first=$(git rev-list --reverse "origin/$BASE_REF..HEAD" | head -1)
+          [ -z "$first" ] || mise exec -- cog check "$first..HEAD"
+
+  bootstrap:
+    # The configuration still parses and plans on a fresh Linux machine. Nothing is applied.
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install mise
+        run: |
+          curl -fsSL https://mise.run | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Use the repository as the global configuration
+        run: |
+          mkdir -p ~/.config
+          cp -r "$GITHUB_WORKSPACE" ~/.config/mise
+      - name: Bootstrap dry run
+        working-directory: ${{ runner.temp }}
+        run: mise bootstrap --dry-run --yes

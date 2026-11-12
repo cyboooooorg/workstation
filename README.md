@@ -40,7 +40,8 @@ On Linux, add the user to the docker group afterwards
 | `mise run graph` / `graphd` | Sets up / removes [graphify](#graphify-a-code-graph-for-the-agent) in the current repository |
 | `mise run g:docker:plugins` | Links the mise `docker-compose` and `docker-buildx` into `~/.docker/cli-plugins` (run by `mise bootstrap`) |
 
-Changing a tool or a dotfile means changing this repository, then commit and push.
+Changing a tool or a dotfile means changing this repository, in a branch and a pull request:
+see [Working on this repository](#working-on-this-repository).
 
 ## Contents
 
@@ -59,6 +60,8 @@ stacks/traefik/      local reverse proxy, one instance for the whole machine
 stacks/<service>/    local services started on demand behind Traefik
                      (chartdb, excalidraw, it-tools, mailpit)
 install.sh           new machine setup
+.config/mise.toml    tools and lint tasks for working on this repository (not the machine)
+.github/workflows/   CI: lint, commit messages, bootstrap dry run
 ```
 
 | | Linux (Debian) | macOS |
@@ -256,6 +259,39 @@ mise run vm --yes   # applies the recommended values without asking
 
 Restarting the VM stops its containers; those with a restart policy, such as Traefik, come back.
 The disk can only grow. On Linux, Docker runs natively: there is no VM to size.
+
+## Working on this repository
+
+`.config/mise.toml` holds the tools and tasks used to work on this repository. mise loads it only
+inside the repository, so it never changes the machine configuration (`config.toml`). Its tool
+versions are pinned, and [Renovate](https://docs.renovatebot.com) proposes the updates once its
+GitHub app is enabled for the repository.
+
+```sh
+mise run setup    # once per clone: installs the git hooks (prek)
+mise run lint     # every check below
+```
+
+| Task | Checks |
+| --- | --- |
+| `lint:secrets` | no secret in the git history (gitleaks): the repository is public |
+| `lint:shell` | `install.sh` and the tasks (shellcheck, settings in `.shellcheckrc`) |
+| `lint:typos` | spelling (typos, exceptions in `_typos.toml`) |
+| `lint:editorconfig` | `.editorconfig` rules, except the indent size (aligned continuation lines) |
+| `lint:ci` | GitHub Actions workflows (actionlint, zizmor) |
+| `lint:renovate` | `renovate.json` |
+
+The git hooks run these checks on each commit, check the message against
+[Conventional Commits](https://www.conventionalcommits.org) (cocogitto), and refuse commits on
+`main`: work in a branch, ideally a worktree, since `~/.config/mise` points to this checkout:
+
+```sh
+git worktree add ../workstation-<topic> -b <type>/<topic>
+```
+
+CI runs the same checks on every pull request, checks the commit messages, and runs
+`mise bootstrap --dry-run` on a fresh Ubuntu machine with this repository as the global
+configuration.
 
 ## Secrets
 
