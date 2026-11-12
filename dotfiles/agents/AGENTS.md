@@ -50,6 +50,15 @@ Follow [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.
 - No emoji, anywhere in the message: no Unicode emoji, no gitmoji, no `:shortcode:`.
 - One logical change per commit. Documentation for a change goes in the same commit;
   a commit touching only documentation uses `docs`.
+- Pull request and merge request titles follow the same header format: the
+  forge may use them as the merge or squash commit subject.
+- A merge commit is a commit too, never git's or the forge's default message
+  (`Merge pull request #12 from …`, `Merge branch '…' into '…'`). When merging
+  (only when the user asks), give the message explicitly:
+  `gh pr merge 12 --merge --subject "feat(api): add search (#12)" --body ""`,
+  `gh pr merge 12 --squash --subject "…"`, `glab mr merge 12 --message "…"` or
+  `--squash --squash-message "…"`, `git merge -m "chore: merge main into fix/x"`.
+  A rebase merge keeps the commits as they are.
 
 Examples:
 
