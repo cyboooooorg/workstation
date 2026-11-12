@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#MISE description="[global] Adds or edits a server in Bitwarden (interactive questions)"
+#MISE description="[global] sa · Adds or edits a server in Bitwarden (interactive questions)"
 #MISE alias="sa"
 #USAGE arg "[server]" help="Server alias (asked if missing)"
 #USAGE complete "server" run="awk '/^Host /{print $2}' ~/.ssh/config.d/bitwarden-hosts"

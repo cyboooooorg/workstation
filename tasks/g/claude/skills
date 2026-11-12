@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-#MISE description="[global] Installs or updates the global Claude Code skills (curl.md), loaded in every project"
+#MISE description="[global] csk · Installs or updates the global Claude Code skills (curl.md), loaded in every project"
+#MISE alias="csk"
 set -euo pipefail
 
 # Wanted skills: one `npx skills add` source per line, installed in the user scope

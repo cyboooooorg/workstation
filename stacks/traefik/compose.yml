@@ -2,7 +2,7 @@
 # IMPORTANT NOTE: This file is a docker compose file that is used to define the reverse proxy related
 # services. It is used to define the Traefik container.
 # Unlike the other stacks, it is meant to be run standalone, ONCE for the whole machine,
-# started by the last step of `mise bootstrap` (or by hand: mise run g:traefik:up)
+# started by the last step of `mise bootstrap` (or by hand: mise run tu traefik)
 # Projects expose their services by joining the external "proxy" network and adding Traefik labels:
 #   labels:
 #     - traefik.enable=true

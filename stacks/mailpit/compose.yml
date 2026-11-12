@@ -1,6 +1,6 @@
 ########################################################################################################
 # Mailpit: catches every mail sent by local projects (https://mailpit.axllent.org)
-# Started on demand, behind the machine-wide Traefik: mise run mail (start), mise run maild (stop)
+# Started on demand, behind the machine-wide Traefik: mise run tu mailpit (start), mise run td mailpit (stop)
 #   - inbox:            http://mail.localhost
 #   - SMTP from host:   localhost:1025 (any user / password, no TLS)
 #   - SMTP from Docker: mailpit:1025, for containers joining the external "proxy" network

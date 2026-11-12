@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-#MISE description="[global] Links dotfiles/agents/AGENTS.md to the global instruction file of each installed coding agent"
+#MISE description="[global] al · Links dotfiles/agents/AGENTS.md to the global instruction file of each installed coding agent"
+#MISE alias="al"
 set -euo pipefail
 
 # Coding agents: "command|global instruction file".

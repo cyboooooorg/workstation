@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#MISE description="[global] SSH/SFTP connection to a server described in Bitwarden (item ssh/<alias>)"
+#MISE description="[global] sc · SSH/SFTP connection to a server described in Bitwarden (item ssh/<alias>)"
 #MISE alias="sc"
 #USAGE arg "<server>" help="Server alias (Bitwarden item ssh/<alias>)"
 #USAGE flag "--no-shell" help="Run the item commands, then exit"
@@ -11,7 +11,7 @@ source "$(dirname "$0")/_lib.sh"
 bw_ensure_unlocked
 # shellcheck disable=SC2154 # usage_server is set by mise from the #USAGE spec
 raw="$(bw_ssh_raw_item "$usage_server")"
-[[ -n "$raw" ]] || { echo "No Bitwarden item \"$SSH_PREFIX$usage_server\". See: mise run g:ssh:list" >&2; exit 1; }
+[[ -n "$raw" ]] || { echo "No Bitwarden item \"$SSH_PREFIX$usage_server\". See: mise run sl" >&2; exit 1; }
 item="$(jq "$SSH_ITEM_JQ" <<<"$raw")"
 get() { jq -r ".$1" <<<"$item"; }
 

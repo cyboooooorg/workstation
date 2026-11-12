@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#MISE description="[global] Sizes the Colima Docker VM (macOS): CPUs, memory and disk, asked with defaults based on this Mac"
+#MISE description="[global] vm · Sizes the Colima Docker VM (macOS): CPUs, memory and disk, asked with defaults based on this Mac"
 #MISE alias="vm"
 #USAGE flag "--if-missing" help="Do nothing when the VM already exists (used by mise bootstrap)"
 #USAGE flag "-y --yes" help="Do not ask: use the recommended values"

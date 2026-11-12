@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-#MISE description="[global] Locks Bitwarden and deletes the shared session"
+#MISE description="[global] bwl · Locks Bitwarden and deletes the shared session"
+#MISE alias="bwl"
 set -euo pipefail
 bw lock >/dev/null
 rm -f "${XDG_RUNTIME_DIR:-/tmp}/bw-session"

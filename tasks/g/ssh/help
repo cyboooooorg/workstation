@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#MISE description="[global] How-to: SSH connections managed from Bitwarden"
+#MISE description="[global] sc:help · How-to: SSH connections managed from Bitwarden"
 #MISE alias="sc:help"
 set -euo pipefail
 
@@ -13,7 +13,7 @@ ${B}1. Once per machine${R}
 
 ${B}2. Every session${R}
    ${C}mise run bwu${R}                     unlock Bitwarden (session shared between terminals)
-   ${C}mise run g:bw:lock${R}               lock it again when leaving
+   ${C}mise run bwl${R}                     lock it again when leaving
 
 ${B}3. Day to day${R}
    ${C}mise run sl${R}                      list the servers

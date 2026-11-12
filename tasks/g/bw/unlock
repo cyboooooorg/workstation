@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#MISE description="[global] Unlocks Bitwarden and shares the session (file in RAM + export for eval)"
+#MISE description="[global] bwu · Unlocks Bitwarden and shares the session (file in RAM + export for eval)"
 #MISE alias="bwu"
 set -euo pipefail
 

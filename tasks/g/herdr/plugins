@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-#MISE description="[global] Installs the missing herdr plugins (Terminal Browser, Terminal Code)"
+#MISE description="[global] hp · Installs the missing herdr plugins (Terminal Browser, Terminal Code)"
+#MISE alias="hp"
 set -euo pipefail
 
 # Wanted herdr plugins: "plugin id|GitHub source".

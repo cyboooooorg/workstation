@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#MISE description="[global] Regenerates ~/.ssh/config.d/bitwarden-hosts from Bitwarden (for ssh, scp, VS Code and completion)"
+#MISE description="[global] ss · Regenerates ~/.ssh/config.d/bitwarden-hosts from Bitwarden (for ssh, scp, VS Code and completion)"
 #MISE alias="ss"
 set -euo pipefail
 source "$(dirname "$0")/_lib.sh"
@@ -21,4 +21,4 @@ tmp="$(mktemp)"
 } > "$tmp"
 install -m 600 "$tmp" "$SSH_GENERATED_CONFIG" && rm -f "$tmp"
 echo "$(grep -c '^Host ' "$SSH_GENERATED_CONFIG") server(s) written to $SSH_GENERATED_CONFIG"
-bw_ssh_items | jq -r '.[] | select(.host == "") | "Skipped (no ssh://host:port URI): \(.alias) -> mise run g:ssh:add \(.alias)"' >&2
+bw_ssh_items | jq -r '.[] | select(.host == "") | "Skipped (no ssh://host:port URI): \(.alias) -> mise run sa \(.alias)"' >&2

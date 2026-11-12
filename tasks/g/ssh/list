@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#MISE description="[global] Lists the servers stored in Bitwarden (ssh/* items)"
+#MISE description="[global] sl · Lists the servers stored in Bitwarden (ssh/* items)"
 #MISE alias="sl"
 set -euo pipefail
 source "$(dirname "$0")/_lib.sh"

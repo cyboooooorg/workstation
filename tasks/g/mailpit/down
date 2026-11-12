@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-#MISE description="[global] Stops Mailpit and removes its container (caught mails are kept)"
-#MISE alias="maild"
-set -euo pipefail
-source "$(dirname "$0")/../_stack.sh"
-
-stack_down mailpit

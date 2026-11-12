@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-#MISE description="[global] Starts ChartDB on http://chartdb.localhost (pulls the latest image)"
-#MISE alias="cdb"
-set -euo pipefail
-source "$(dirname "$0")/../_stack.sh"
-
-stack_up chartdb http://chartdb.localhost

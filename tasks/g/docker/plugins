@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-#MISE description="[global] Registers the mise docker-compose and docker-buildx binaries as docker CLI plugins"
+#MISE description="[global] dp · Registers the mise docker-compose and docker-buildx binaries as docker CLI plugins"
+#MISE alias="dp"
 set -euo pipefail
 
 # The docker CLI only finds `docker compose` and `docker buildx` in ~/.docker/cli-plugins
