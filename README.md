@@ -60,6 +60,8 @@ stacks/traefik/      local reverse proxy, one instance for the whole machine
 stacks/<service>/    local services started on demand behind Traefik
                      (chartdb, excalidraw, it-tools, mailpit)
 install.sh           new machine setup
+claude/hooks/        Claude Code hooks (git guard), added by g:claude:settings
+tests/               bats tests of the hook and the settings task
 .config/mise.toml    tools and lint tasks for working on this repository (not the machine)
 .github/workflows/   CI: lint, commit messages, bootstrap dry run
 ```
@@ -116,8 +118,9 @@ It then runs three more tasks, all safe to run again:
 - `mise run g:claude:settings` merges the wanted user settings into `~/.claude/settings.json`;
   those keys win, every other setting is kept. Today: subagents run on Sonnet
   (`CLAUDE_CODE_SUBAGENT_MODEL=claude-sonnet-5-5`) and forked subagents are off
-  (`CLAUDE_CODE_FORK_SUBAGENT=0`). To change them, edit the JSON in
-  `tasks/g/claude/settings`; a setting removed from it is not removed from
+  (`CLAUDE_CODE_FORK_SUBAGENT=0`). It also adds the [git guard](#git-guard-for-claude-code)
+  hook next to the hooks already there (rtk, herdr). To change them, edit the JSON in
+  `tasks/g/claude/settings`; a setting or hook removed from it is not removed from
   `~/.claude/settings.json`. Settings apply when Claude Code restarts.
 - `mise run g:claude:skills` installs the global skills (in `~/.claude/skills`, loaded in every
   project) with `npx skills add --global`, which also fetches their latest version:
@@ -129,6 +132,24 @@ It then runs three more tasks, all safe to run again:
   `@RTK.md` to `~/.claude/CLAUDE.md`, which links to this repository. `rtk gain` shows the
   tokens saved; `rtk bypass <command>` runs a command without filtering. rtk telemetry stays
   off unless `rtk telemetry enable` is run.
+
+### Git guard for Claude Code
+
+[`claude/hooks/git-guard.sh`](claude/hooks/git-guard.sh) is a `PreToolUse` hook on the Bash
+commands of Claude Code (subagents included). It refuses:
+
+- a push to the default branch (`git push origin main`, `HEAD:main`, or `git push` while on it);
+- a force push without lease (`--force`, `-f`, `+branch`): `--force-with-lease` is allowed;
+- a `git merge` while the default branch is checked out.
+
+Everything else goes through, including merging a pull request on the forge (`gh pr merge`,
+`glab mr merge`): when to merge is the user's call, written in each project's instructions. A
+workflow that rebuilds an integration branch from `main` (`git checkout -B develop origin/main &&
+git merge …`, then `git push --force-with-lease origin origin/main:develop`) is allowed. The
+default branch is `origin/HEAD`, else `main` or `master`.
+
+The hook reads the command, not what it will do: a push hidden in a script it runs is not seen.
+It is a guard rail, not a security boundary. Its tests are in `tests/git-guard.bats`.
 
 ### graphify: a code graph for the agent
 
@@ -269,7 +290,7 @@ GitHub app is enabled for the repository.
 
 ```sh
 mise run setup    # once per clone: installs the git hooks (prek)
-mise run lint     # every check below
+mise run check    # every check below, then the tests
 ```
 
 | Task | Checks |
@@ -280,6 +301,7 @@ mise run lint     # every check below
 | `lint:editorconfig` | `.editorconfig` rules, except the indent size (aligned continuation lines) |
 | `lint:ci` | GitHub Actions workflows (actionlint, zizmor) |
 | `lint:renovate` | `renovate.json` |
+| `test` | bats tests in `tests/` (also run by the pre-push hook) |
 
 The git hooks run these checks on each commit, check the message against
 [Conventional Commits](https://www.conventionalcommits.org) (cocogitto), and refuse commits on
