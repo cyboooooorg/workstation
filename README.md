@@ -56,7 +56,7 @@ description in `mise tasks -g` (`[global] tu · Starts…`). With `alias mr="mis
 | Bitwarden | `bwu`: `g:bw:unlock`, `bwl`: `g:bw:lock` |
 | SSH | `sc`: `g:ssh:connect`, `sl`: `g:ssh:list`, `sa`: `g:ssh:add`, `ss`: `g:ssh:sync`, `sc:help`: `g:ssh:help` |
 | Coding agents | `al`: `g:agents:link`, `cp`: `g:claude:plugins`, `cs`: `g:claude:settings`, `csk`: `g:claude:skills`, `cr`: `g:claude:rtk` |
-| herdr | `hp`: `g:herdr:plugins` |
+| herdr | `hp`: `g:herdr:plugins` (installs [herdr-sidebar](https://github.com/alexarthurs/herdr-sidebar)) |
 
 A new task gets an alias too, written both in `#MISE alias` and at the start of
 `#MISE description`.
