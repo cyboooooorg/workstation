@@ -114,15 +114,3 @@ each turn that follows.
   decisions, the branch and the open questions.
 - Suggest it once per topic, never twice in a row, and never in the middle
   of a task.
-
-## graphify
-
-A repository may carry a local [graphify](https://github.com/Graphify-Labs/graphify) setup
-(`.claude/graphify.md`, hooks nudging you towards `graphify query` before searching or
-reading files). It is a tool, not a rule above the task: when the graph is missing, stale or
-wrong, read the files directly.
-
-When the graphify hooks degrade your work (nudges pulling you away from the files you need,
-answers from the graph that turn out wrong, a graph clearly behind the code), stop, tell the
-user what you saw, and suggest `mise run graphd`, which removes the setup from the
-repository. Do not run it yourself: the user decides.
