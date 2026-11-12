@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-#MISE description="[global] Merges the wanted settings into ~/.claude/settings.json (subagent model, no forked subagents)"
+#MISE description="[global] Merges the wanted settings and hooks into ~/.claude/settings.json (subagent model, git guard)"
 set -euo pipefail
 
 # Wanted Claude Code user settings, deep-merged into ~/.claude/settings.json:
-# these keys win, every other setting (hooks, permissions, plugins…) is kept.
+# these keys win, every other setting (permissions, plugins…) is kept.
 SETTINGS='{
   "env": {
     "CLAUDE_CODE_SUBAGENT_MODEL": "claude-sonnet-5-5",
@@ -11,16 +11,42 @@ SETTINGS='{
   }
 }'
 
+# Wanted hooks, by event. Each entry is added once, next to the hooks already there (rtk,
+# herdr…); an entry running the same command as one of ours is replaced by ours.
+# @REPO@ is the directory of this repository (~/.config/mise links to it).
+HOOKS='{
+  "PreToolUse": [
+    {
+      "matcher": "Bash",
+      "hooks": [{ "type": "command", "command": "@REPO@/claude/hooks/git-guard.sh" }]
+    }
+  ]
+}'
+
 if ! command -v claude >/dev/null; then
   echo "claude is not installed: no settings to apply."
   exit 0
 fi
 
+repo="$(cd "$(dirname "$0")/../../.." && pwd -P)"
 file="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/settings.json"
 mkdir -p "$(dirname "$file")"
 [[ -s "$file" ]] || echo '{}' >"$file"
 
-merged="$(jq --argjson wanted "$SETTINGS" '. * $wanted' "$file")"
+merged="$(jq --argjson wanted "$SETTINGS" --argjson hooks "${HOOKS//@REPO@/$repo}" '
+  def cmds: [.hooks[]?.command];
+  . * $wanted
+  | reduce ($hooks | to_entries[]) as $e (.;
+      reduce $e.value[] as $w (.;
+        ($w | cmds) as $ours
+        | def mine: any(cmds[]; IN($ours[]));
+          (.hooks[$e.key] // []) as $current
+          | .hooks[$e.key] =
+              if any($current[]; mine)
+              then [$current[] | if mine then $w else . end]
+              else $current + [$w]
+              end))
+' "$file")"
 if [[ "$merged" == "$(jq . "$file")" ]]; then
   echo "up to date: $file"
 else

@@ -1,6 +1,6 @@
 # Git hooks, installed by `mise run setup` (prek). Each local hook calls a mise task of
 # .config/mise.toml: the commands live there only, and CI runs the same tasks.
-default_install_hook_types: [pre-commit, commit-msg]
+default_install_hook_types: [pre-commit, commit-msg, pre-push]
 default_stages: [pre-commit]
 repos:
   - repo: builtin
@@ -41,7 +41,7 @@ repos:
         entry: mise run lint:shell
         language: system
         pass_filenames: false
-        files: ^(install\.sh|tasks/|\.shellcheckrc$)
+        files: ^(install\.sh|tasks/|claude/hooks/|tests/|\.shellcheckrc$)
       - id: lint-ci
         name: lint:ci
         entry: mise run lint:ci
@@ -60,3 +60,10 @@ repos:
         language: system
         pass_filenames: true
         stages: [commit-msg]
+      - id: test
+        name: test
+        entry: mise run test
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
