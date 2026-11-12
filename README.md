@@ -118,7 +118,12 @@ It then runs three more tasks, all safe to run again:
 - `mise run g:claude:settings` merges the wanted user settings into `~/.claude/settings.json`;
   those keys win, every other setting is kept. Today: subagents run on Sonnet
   (`CLAUDE_CODE_SUBAGENT_MODEL=claude-sonnet-5-5`) and forked subagents are off
-  (`CLAUDE_CODE_FORK_SUBAGENT=0`). It also adds the [git guard](#git-guard-for-claude-code)
+  (`CLAUDE_CODE_FORK_SUBAGENT=0`). To save tokens, the context is compacted automatically
+  at 400k tokens (`CLAUDE_CODE_AUTO_COMPACT_WINDOW=400000`) instead of near the edge of the
+  1M window: a safety net, after the `/compact` the agent suggests around 200k
+  ([`AGENTS.md`](dotfiles/agents/AGENTS.md)). Claude Code also sends no background request for
+  the terminal title or for prompt suggestions (`CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1`,
+  `CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION=false`). It also adds the [git guard](#git-guard-for-claude-code)
   hook next to the hooks already there (rtk, herdr). To change them, edit the JSON in
   `tasks/g/claude/settings`; a setting or hook removed from it is not removed from
   `~/.claude/settings.json`. Settings apply when Claude Code restarts.
