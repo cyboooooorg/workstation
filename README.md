@@ -228,7 +228,8 @@ networks:
 
 Router names must be unique on the machine (hence the project prefix).
 For an app running outside Docker, copy `stacks/traefik/traefik/dynamic/host-apps.yml.example`
-to `<name>.yml` in the same directory.
+to `<name>.yml` in the same directory. These files are machine-specific and ignored by git:
+only the `*.example` template is versioned.
 
 ## Local services on demand
 
