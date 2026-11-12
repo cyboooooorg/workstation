@@ -1,0 +1,3 @@
+[default.extend-words]
+# sed label (`:a … ba`) in tasks/g/graphify/_lib.sh
+ba = "ba"
