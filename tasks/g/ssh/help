@@ -3,7 +3,7 @@
 #MISE alias="sc:help"
 set -euo pipefail
 
-if [[ -t 1 ]]; then B=$'\e[1m'; T=$'\e[1;34m'; C=$'\e[36m'; D=$'\e[2m'; R=$'\e[0m'; else B= T= C= D= R=; fi
+if [[ -t 1 ]]; then B=$'\e[1m'; T=$'\e[1;34m'; C=$'\e[36m'; D=$'\e[2m'; R=$'\e[0m'; else B='' T='' C='' D='' R=''; fi
 
 cat <<EOF
 ${T}SSH connections — single source of truth: Bitwarden${R}
