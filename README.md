@@ -85,7 +85,8 @@ empty under `set -u`.
 
 [`dotfiles/agents/AGENTS.md`](dotfiles/agents/AGENTS.md) holds the rules every coding agent
 follows in every project: English documentation (French on request), documentation shipped with
-each change, Conventional Commits without emoji, and when to back off from
+each change, Conventional Commits without emoji, deferred user suggestions filed as GitHub or
+GitLab issues (label `backlog`), and when to back off from
 [graphify](#graphify-a-code-graph-for-the-agent).
 
 `mise bootstrap` runs `mise run g:agents:link` once the tools are installed. The task links this
