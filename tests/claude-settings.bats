@@ -18,6 +18,7 @@ pretool_commands() { jq -c '[.hooks.PreToolUse[].hooks[].command]' "$FILE"; }
 @test "creates the settings file" {
   "$TASK"
   [ "$(jq -r .env.CLAUDE_CODE_SUBAGENT_MODEL "$FILE")" = claude-sonnet-5-5 ]
+  [ "$(jq -r .env.CLAUDE_CODE_AUTO_COMPACT_WINDOW "$FILE")" = 400000 ]
   [ "$(pretool_commands)" = "[\"$(guard)\"]" ]
 }
 

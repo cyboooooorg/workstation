@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#MISE description="[global] Merges the wanted settings and hooks into ~/.claude/settings.json (subagent model, git guard)"
+#MISE description="[global] Merges the wanted settings and hooks into ~/.claude/settings.json (subagent model, compaction, git guard)"
 set -euo pipefail
 
 # Wanted Claude Code user settings, deep-merged into ~/.claude/settings.json:
@@ -7,7 +7,10 @@ set -euo pipefail
 SETTINGS='{
   "env": {
     "CLAUDE_CODE_SUBAGENT_MODEL": "claude-sonnet-5-5",
-    "CLAUDE_CODE_FORK_SUBAGENT": "0"
+    "CLAUDE_CODE_FORK_SUBAGENT": "0",
+    "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "400000",
+    "CLAUDE_CODE_DISABLE_TERMINAL_TITLE": "1",
+    "CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION": "false"
   }
 }'
 
