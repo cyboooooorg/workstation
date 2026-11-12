@@ -39,6 +39,7 @@ On Linux, add the user to the docker group afterwards
 | `mise run vm` | Resizes the [Docker VM](#docker-vm-size-macos) (macOS) |
 | `mise run graph` / `graphd` | Sets up / removes [graphify](#graphify-a-code-graph-for-the-agent) in the current repository |
 | `mise run g:docker:plugins` | Links the mise `docker-compose` and `docker-buildx` into `~/.docker/cli-plugins` (run by `mise bootstrap`) |
+| `mise run g:zsh:completions` | Regenerates the [zsh completions](#zsh-completions) of the tools (run by `mise bootstrap`) |
 
 Changing a tool or a dotfile means changing this repository, in a branch and a pull request:
 see [Working on this repository](#working-on-this-repository).
@@ -191,6 +192,16 @@ mise run graphd   # remove everything it added
   [`AGENTS.md`](dotfiles/agents/AGENTS.md)) to stop and suggest `mise run graphd`.
 - graphify logs every query to `~/.cache/graphify-queries.log`; set
   `GRAPHIFY_QUERY_LOG_DISABLE=1` to turn that off.
+
+## zsh completions
+
+`mise bootstrap` runs `mise run g:zsh:completions`, which writes the zsh completion of each
+installed tool that ships one (`bw`, `docker`, `gh`, `glab`, `herdr`, `mise`, `rg`) to
+`~/.local/share/zsh/completions`. `~/.zshrc` adds that directory to `fpath` before oh-my-zsh
+runs `compinit`, so they load in the next shell. They are regenerated on every bootstrap, so
+`mise run up` keeps them in step with the tool versions; the completion of a tool no longer
+installed is removed. To add a tool, add a `command arguments` line to
+`tasks/g/zsh/completions`.
 
 ## Traefik: exposing a project on `*.localhost`
 
