@@ -187,6 +187,23 @@ runs `compinit`, so they load in the next shell. They are regenerated on every b
 installed is removed. To add a tool, add a `command arguments` line to
 `tasks/g/zsh/completions`.
 
+## herdr sidebar
+
+`mise bootstrap` installs [herdr-sidebar](https://github.com/alexarthurs/herdr-sidebar)
+(`mise run hp`): a file explorer, project search and source control in a herdr pane. Its
+keybindings live in `~/.config/herdr/config.toml`, where mise manages only the block between the
+`mise:herdr-sidebar-keys` markers (declared in `config.toml`); herdr keeps writing the rest of the
+file.
+
+| Keys | Effect |
+| --- | --- |
+| `prefix+f` (`ctrl+b`, then `f`) | Opens the sidebar, focuses it, or closes it when focused |
+| `prefix+shift+f` | Opens the sidebar on its file picker |
+
+`prefix+b` stays herdr's own sidebar (workspaces). Press `s` in the sidebar for its settings
+(auto-open in every tab, docking side). After editing the block, run `mise dot apply`, then
+`herdr server reload-config`.
+
 ## Traefik: exposing a project on `*.localhost`
 
 Traefik listens on `127.0.0.1:80` and `[::1]:80`.

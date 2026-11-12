@@ -27,6 +27,22 @@ rtk = "latest"
 "~/.zshrc" = { source = "dotfiles/zshrc" }
 # "kitty" menu entry pointing to the mise kitty (not the apt one)
 "~/.local/share/applications/kitty.desktop" = { source = "dotfiles/kitty.desktop", mode = "template", variants = [{ os = "linux" }] }
+# herdr keybindings for herdr-sidebar (installed by g:herdr:plugins): only this block of the
+# file is managed, herdr keeps writing the rest (onboarding, settings).
+# prefix+f toggles the sidebar, prefix+shift+f opens its file picker (prefix+b stays herdr's own sidebar)
+"~/.config/herdr/config.toml/herdr-sidebar-keys" = { block = '''
+[[keys.command]]
+key = "prefix+f"
+type = "plugin_action"
+command = "herdr-sidebar.open-sidebar"
+description = "toggle herdr-sidebar"
+
+[[keys.command]]
+key = "prefix+shift+f"
+type = "plugin_action"
+command = "herdr-sidebar.quick-open"
+description = "herdr-sidebar quick open"
+''' }
 
 # Docker engine on Linux, from the official Docker repository
 [bootstrap.apt.sources.docker]
