@@ -2,6 +2,8 @@ name: ci
 
 on:
   pull_request:
+    # edited: a new pull request title is checked again (pr-title job only)
+    types: [opened, synchronize, reopened, edited]
   push:
     branches: [main]
 
@@ -9,7 +11,31 @@ permissions:
   contents: read
 
 jobs:
+  pr-title:
+    # The title becomes the merge or squash commit subject (repository setting): it must
+    # follow Conventional Commits too.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
+        with:
+          install_args: cocogitto
+      - name: Conventional pull request title
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        # cog verify needs a git identity (it shows the author), which the runner does not set
+        run: |
+          git config user.name ci
+          git config user.email ci@localhost
+          mise exec -- cog verify "$TITLE"
+
   lint:
+    if: github.event.action != 'edited'
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -32,6 +58,7 @@ jobs:
 
   bootstrap:
     # The configuration still parses and plans on a fresh Linux machine. Nothing is applied.
+    if: github.event.action != 'edited'
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -328,9 +328,15 @@ The git hooks run these checks on each commit, check the message against
 git worktree add ../workstation-<topic> -b <type>/<topic>
 ```
 
-CI runs the same checks on every pull request, checks the commit messages, and runs
+CI runs the same checks on every pull request, checks the commit messages and the pull request
+title, and runs
 `mise bootstrap --dry-run` on a fresh Ubuntu machine with this repository as the global
 configuration.
+
+The pull request title must follow Conventional Commits as well: the repository uses it as the
+subject of a merge or squash commit (GitHub settings: default merge commit title and squash
+commit title set to the pull request title, merge commit body left empty, since the PR
+description may hold emoji). A rebase merge keeps the commits as they are.
 
 ## Secrets
 
