@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+#MISE description="[global] Generates the zsh completions of the tools that ship one (gh, glab, mise, docker…)"
+set -euo pipefail
+
+# One line per tool: the command, then the arguments that print its zsh completion.
+# A tool that is not installed is skipped, and its old completion file removed.
+COMPLETIONS='
+bw completion --shell zsh
+docker completion zsh
+gh completion -s zsh
+glab completion -s zsh
+herdr completion zsh
+mise completion zsh
+rg --generate complete-zsh
+'
+
+# Loaded by ~/.zshrc, which adds this directory to fpath before oh-my-zsh runs compinit.
+dir="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/completions"
+mkdir -p "$dir"
+
+while read -r cmd args; do
+  [[ -n "$cmd" ]] || continue
+  file="$dir/_$cmd"
+  if ! command -v "$cmd" >/dev/null; then
+    rm -f "$file"
+    continue
+  fi
+  # shellcheck disable=SC2086 # args is a list of words
+  if "$cmd" $args >"$file.tmp" 2>/dev/null && [[ -s "$file.tmp" ]]; then
+    mv "$file.tmp" "$file"
+  else
+    rm -f "$file.tmp"
+    echo "no zsh completion generated for $cmd" >&2
+  fi
+done <<<"$COMPLETIONS"
+echo "zsh completions: $dir"

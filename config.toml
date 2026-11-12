@@ -87,6 +87,7 @@ builtin = "history-watch"
 #   agents installed on this machine: [dotfiles] entries cannot depend on that
 # - `docker compose` and `docker buildx`: the mise binaries linked into ~/.docker/cli-plugins,
 #   before the bootstrap task starts Traefik with `docker compose`
+# - zsh completions of the installed tools, regenerated to follow their versions
 # Once Colima is installed, and before the launchd agent above starts it: asks for the size
 # of the Docker VM (macOS, first bootstrap only; nothing to do on Linux)
 [bootstrap.hooks.post-packages]
@@ -94,8 +95,8 @@ description = "Colima VM size"
 run = "mise run -q g:colima:resources --if-missing"
 
 [bootstrap.hooks.post-tools]
-description = "herdr plugins, coding agent instructions, Claude Code plugins, settings, skills and rtk hook, docker CLI plugins"
-run = ["mise run -q g:herdr:plugins", "mise run -q g:agents:link", "mise run -q g:claude:plugins", "mise run -q g:claude:settings", "mise run -q g:claude:skills", "mise run -q g:claude:rtk", "mise run -q g:docker:plugins"]
+description = "herdr plugins, coding agent instructions, Claude Code plugins, settings, skills and rtk hook, docker CLI plugins, zsh completions"
+run = ["mise run -q g:herdr:plugins", "mise run -q g:agents:link", "mise run -q g:claude:plugins", "mise run -q g:claude:settings", "mise run -q g:claude:skills", "mise run -q g:claude:rtk", "mise run -q g:docker:plugins", "mise run -q g:zsh:completions"]
 
 [settings.pypi]
 uvx = false
