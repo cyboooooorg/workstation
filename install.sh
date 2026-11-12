@@ -58,12 +58,14 @@ fi
 # mise only links ~/.config/mise to the repository if the directory is missing or empty
 if [ -d "$HOME/.config/mise" ] && [ ! -L "$HOME/.config/mise" ] && [ -n "$(ls -A "$HOME/.config/mise")" ]; then
   backup="$HOME/.config/mise.bak-$(date +%Y%m%d-%H%M%S)"
+  # shellcheck disable=SC2088 # shown to the user, not expanded
   say "~/.config/mise already exists: moved to $backup"
   mv "$HOME/.config/mise" "$backup"
 fi
 
 # mise dotfiles refuses to overwrite an existing file: move the files that [dotfiles] links
 # (config.toml) aside, unless they already are links
+# shellcheck disable=SC2066 # a list of one today: add the next linked files here
 for file in "$HOME/.zshrc"; do
   if [ -e "$file" ] && [ ! -L "$file" ]; then
     backup="$file.bak-$(date +%Y%m%d-%H%M%S)"

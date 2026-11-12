@@ -1,0 +1,5 @@
+# Tasks source their helpers (_lib.sh, _stack.sh…) relative to their own directory.
+external-sources=true
+source-path=SCRIPTDIR
+# The sourced helper files have no shebang: they run under the task's bash.
+shell=bash

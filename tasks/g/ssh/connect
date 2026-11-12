@@ -9,6 +9,7 @@ set -euo pipefail
 source "$(dirname "$0")/_lib.sh"
 
 bw_ensure_unlocked
+# shellcheck disable=SC2154 # usage_server is set by mise from the #USAGE spec
 raw="$(bw_ssh_raw_item "$usage_server")"
 [[ -n "$raw" ]] || { echo "No Bitwarden item \"$SSH_PREFIX$usage_server\". See: mise run g:ssh:list" >&2; exit 1; }
 item="$(jq "$SSH_ITEM_JQ" <<<"$raw")"
@@ -28,6 +29,7 @@ SSHPASS="$(get password)"
 if [[ -n "$SSHPASS" ]]; then
   export SSHPASS
   prefix=(sshpass -e)
+  # shellcheck disable=SC2054 # the comma belongs to the ssh option value
   opts+=(-o PreferredAuthentications=password,keyboard-interactive)
 else
   unset SSHPASS
@@ -38,6 +40,7 @@ if [[ "$scheme" == "sftp" || "${usage_sftp:-false}" == "true" ]]; then
 elif [[ -n "$commands" && "${usage_no_shell:-false}" == "true" ]]; then
   exec ${prefix[@]+"${prefix[@]}"} ssh -p "$port" "${opts[@]}" "$target" 'bash -s' <<<"$commands"
 elif [[ -n "$commands" ]]; then
+  # shellcheck disable=SC2016 # $SHELL expands on the server
   exec ${prefix[@]+"${prefix[@]}"} ssh -t -p "$port" "${opts[@]}" "$target" "$commands"$'\n''exec $SHELL -l'
 else
   exec ${prefix[@]+"${prefix[@]}"} ssh -p "$port" "${opts[@]}" "$target"

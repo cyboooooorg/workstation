@@ -10,6 +10,7 @@
 #                   identity-file (text)   -> local private key, e.g. ~/.ssh/id_rsa
 
 SSH_PREFIX="ssh/"
+# shellcheck disable=SC2034 # used by the tasks that source this file
 SSH_GENERATED_CONFIG="$HOME/.ssh/config.d/bitwarden-hosts"
 BW_SESSION_FILE="${XDG_RUNTIME_DIR:-/tmp}/bw-session"
 
@@ -36,6 +37,7 @@ bw_ensure_unlocked() {
 }
 
 # jq filter: Bitwarden item -> flat object {alias, id, scheme, host, port, user, password, commands, legacy, identity}
+# shellcheck disable=SC2016 # jq program: $n is a jq variable
 SSH_ITEM_JQ='
   def field($n): (.fields // []) | map(select(.name == $n)) | first | .value // "";
   { alias: (.name | ltrimstr("ssh/")),

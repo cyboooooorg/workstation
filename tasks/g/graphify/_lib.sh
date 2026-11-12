@@ -15,12 +15,12 @@ GRAPHIFY_JQ_IS_OURS='def ours: (.hooks // []) | any((.command // "") | test("gra
 
 # Moves to the top of the git repository the task was started from (global tasks start in ~).
 graphify_enter_repo() {
-  cd "${MISE_ORIGINAL_CWD:-$PWD}"
+  cd "${MISE_ORIGINAL_CWD:-$PWD}" || exit 1
   if ! repo="$(git rev-parse --show-toplevel 2>/dev/null)"; then
     echo "not inside a git repository: $PWD" >&2
     exit 1
   fi
-  cd "$repo"
+  cd "$repo" || exit 1
   exclude_file="$(git rev-parse --git-path info/exclude)"
 }
 
