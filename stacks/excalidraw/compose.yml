@@ -1,6 +1,6 @@
 ########################################################################################################
 # Excalidraw: hand-drawn diagrams (https://github.com/excalidraw/excalidraw), on http://draw.localhost
-# Started on demand, behind the machine-wide Traefik: mise run draw (start), mise run drawd (stop)
+# Started on demand, behind the machine-wide Traefik: mise run tu excalidraw (start), mise run td excalidraw (stop)
 ########################################################################################################
 
 # Fixed project name, whatever the checkout directory is called

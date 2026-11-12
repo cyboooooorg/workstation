@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-#MISE description="[global] Starts Excalidraw, hand-drawn diagrams, on http://draw.localhost"
-#MISE alias="draw"
-set -euo pipefail
-source "$(dirname "$0")/../_stack.sh"
-
-stack_up excalidraw http://draw.localhost

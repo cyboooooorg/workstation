@@ -1,6 +1,6 @@
 ########################################################################################################
 # IT-Tools: developer utilities (JWT, base64, hashes, UUID, cron…), https://github.com/CorentinTh/it-tools
-# Started on demand, behind the machine-wide Traefik: mise run tools (start), mise run toolsd (stop)
+# Started on demand, behind the machine-wide Traefik: mise run tu it-tools (start), mise run td it-tools (stop)
 ########################################################################################################
 
 # Fixed project name, whatever the checkout directory is called

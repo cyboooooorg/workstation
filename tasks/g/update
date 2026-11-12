@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#MISE description="[global] Updates the whole system: workstation repository, mise, mise tools, herdr plugins, Homebrew, apt and snap"
+#MISE description="[global] up, up-all · Updates the whole system: workstation repository, mise, mise tools, herdr plugins, Homebrew, apt and snap"
 #MISE alias=["up", "up-all"]
 set -euo pipefail
 

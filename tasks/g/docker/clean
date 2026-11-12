@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#MISE description="[global] Frees Docker disk space: stopped containers, unused networks, dangling images, build cache"
+#MISE description="[global] dclean · Frees Docker disk space: stopped containers, unused networks, dangling images, build cache"
 #MISE alias="dclean"
 #USAGE flag "--old-images" help="Also remove older versions of each image (version tags such as 12 or 1.1.72), keeping the newest one"
 #USAGE flag "--all-images" help="Also remove every image no container uses (pulled or rebuilt again when needed)"

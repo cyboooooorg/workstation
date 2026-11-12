@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-#MISE description="[global] Merges the wanted settings and hooks into ~/.claude/settings.json (subagent model, compaction, git guard)"
+#MISE description="[global] cs · Merges the wanted settings and hooks into ~/.claude/settings.json (subagent model, compaction, git guard)"
+#MISE alias="cs"
 set -euo pipefail
 
 # Wanted Claude Code user settings, deep-merged into ~/.claude/settings.json:

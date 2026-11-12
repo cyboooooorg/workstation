@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-#MISE description="[global] Hooks rtk into Claude Code: the output of Bash commands is condensed to save tokens"
+#MISE description="[global] cr · Hooks rtk into Claude Code: the output of Bash commands is condensed to save tokens"
+#MISE alias="cr"
 set -euo pipefail
 
 if ! command -v claude >/dev/null || ! command -v rtk >/dev/null; then

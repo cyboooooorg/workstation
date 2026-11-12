@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+#MISE description="[global] td · Stops one or more stacks of stacks/ and removes their containers (named volumes are kept)"
+#MISE alias="td"
+#USAGE arg "[stack]" var=#true help="Stacks to stop (Tab completes); stopping traefik cuts every *.localhost route"
+#USAGE complete "stack" run="ls ~/.config/mise/stacks"
+set -euo pipefail
+source "$(dirname "$0")/../_stack.sh"
+
+stack_check "$@"
+
+for name in "$@"; do
+  stack_down "$name"
+done

@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-#MISE description="[global] Stops IT-Tools and removes its container"
-#MISE alias="toolsd"
-set -euo pipefail
-source "$(dirname "$0")/../_stack.sh"
-
-stack_down it-tools

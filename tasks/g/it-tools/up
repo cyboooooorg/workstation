@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-#MISE description="[global] Starts IT-Tools, developer utilities, on http://tools.localhost"
-#MISE alias="tools"
-set -euo pipefail
-source "$(dirname "$0")/../_stack.sh"
-
-stack_up it-tools http://tools.localhost

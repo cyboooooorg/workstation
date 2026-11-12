@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-#MISE description="[global] Generates the zsh completions of the tools that ship one (gh, glab, mise, docker…)"
+#MISE description="[global] zc · Generates the zsh completions of the tools that ship one (gh, glab, mise, docker…)"
+#MISE alias="zc"
 set -euo pipefail
 
 # One line per tool: the command, then the arguments that print its zsh completion.

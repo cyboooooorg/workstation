@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-#MISE description="[global] Stops ChartDB and removes its container (diagrams stay in the browser)"
-#MISE alias="cdbd"
-set -euo pipefail
-source "$(dirname "$0")/../_stack.sh"
-
-stack_down chartdb

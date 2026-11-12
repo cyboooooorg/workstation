@@ -1,6 +1,6 @@
 ########################################################################################################
 # ChartDB: database diagram editor (https://github.com/chartdb/chartdb), on http://chartdb.localhost
-# Started on demand, behind the machine-wide Traefik: mise run cdb (start), mise run cdbd (stop)
+# Started on demand, behind the machine-wide Traefik: mise run tu chartdb (start), mise run td chartdb (stop)
 ########################################################################################################
 
 # Fixed project name, whatever the checkout directory is called

@@ -2,4 +2,4 @@
 #MISE description="[global] Last step of `mise bootstrap`: Docker services of the machine"
 set -euo pipefail
 
-mise run -q g:traefik:up
+mise run -q g:tools:up traefik

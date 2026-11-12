@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+#MISE description="[global] tu · Starts one or more stacks of stacks/ behind Traefik (mailpit, chartdb, it-tools…)"
+#MISE alias="tu"
+#USAGE arg "[stack]" var=#true help="Stacks to start (Tab completes); traefik starts first in any case"
+#USAGE complete "stack" run="ls ~/.config/mise/stacks"
+set -euo pipefail
+source "$(dirname "$0")/../_stack.sh"
+
+stack_check "$@"
+
+# Every stack is reached through Traefik, which also starts the Docker engine on macOS
+traefik_up
+for name in "$@"; do
+  [[ "$name" == traefik ]] || stack_up "$name"
+done

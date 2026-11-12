@@ -33,12 +33,33 @@ On Linux, add the user to the docker group afterwards
 | `mise run up` | `git pull` of this repository, `mise bootstrap`, then updates everything else (tools, Homebrew, apt, snap) |
 | `mise bootstrap` | Applies the configuration: what is already in place is left alone |
 | `mise bootstrap status` | State of every part (tools, packages, dotfiles…) |
-| `mise tasks -g` | Global tasks (Bitwarden, SSH, herdr, Traefik, local services…) |
-| `mise run mail`, `cdb`, `tools`, `draw` | Starts a [local service](#local-services-on-demand); add `d` to stop it (`maild`…) |
+| `mise tasks -g` | Global tasks (Bitwarden, SSH, herdr, Traefik, local services…), each description starting with its [short alias](#global-tasks) |
+| `mise run tu mailpit it-tools` | Starts one or more [local services](#local-services-on-demand) (Tab completes the names); `td` stops them |
 | `mise run dclean` | [Frees Docker disk space](#docker-cleanup) |
 | `mise run vm` | Resizes the [Docker VM](#docker-vm-size-macos) (macOS) |
-| `mise run g:docker:plugins` | Links the mise `docker-compose` and `docker-buildx` into `~/.docker/cli-plugins` (run by `mise bootstrap`) |
-| `mise run g:zsh:completions` | Regenerates the [zsh completions](#zsh-completions) of the tools (run by `mise bootstrap`) |
+| `mise run dp` | Links the mise `docker-compose` and `docker-buildx` into `~/.docker/cli-plugins` (run by `mise bootstrap`) |
+| `mise run zc` | Regenerates the [zsh completions](#zsh-completions) of the tools (run by `mise bootstrap`) |
+
+### Global tasks
+
+The tasks of `tasks/g/` are named `g:<topic>:<command>`: the `g:` prefix keeps them apart from
+the tasks of a project, which would otherwise win on a name clash (a project task `docker:clean`
+would hide the global one). Each one also has a short alias, shown at the start of its
+description in `mise tasks -g` (`[global] tu · Starts…`). With `alias mr="mise run"` from
+`~/.zshrc`:
+
+| Topic | Alias: task |
+| --- | --- |
+| Local services | `tu`: `g:tools:up`, `td`: `g:tools:down` |
+| System | `up` (or `up-all`): `g:update`, `zc`: `g:zsh:completions` |
+| Docker | `dclean`: `g:docker:clean`, `dp`: `g:docker:plugins`, `vm`: `g:colima:resources` |
+| Bitwarden | `bwu`: `g:bw:unlock`, `bwl`: `g:bw:lock` |
+| SSH | `sc`: `g:ssh:connect`, `sl`: `g:ssh:list`, `sa`: `g:ssh:add`, `ss`: `g:ssh:sync`, `sc:help`: `g:ssh:help` |
+| Coding agents | `al`: `g:agents:link`, `cp`: `g:claude:plugins`, `cs`: `g:claude:settings`, `csk`: `g:claude:skills`, `cr`: `g:claude:rtk` |
+| herdr | `hp`: `g:herdr:plugins` |
+
+A new task gets an alias too, written both in `#MISE alias` and at the start of
+`#MISE description`.
 
 Changing a tool or a dotfile means changing this repository, in a branch and a pull request:
 see [Working on this repository](#working-on-this-repository).
@@ -52,10 +73,10 @@ dotfiles/            files linked into ~ (zshrc) or rendered (kitty.desktop, Lin
   agents/AGENTS.md   global instructions for coding agents (linked by g:agents:link)
 tasks/
   bootstrap          last step of `mise bootstrap`: starts Traefik
-  g/                 global `g:*` tasks (agents, bw, claude, docker, herdr, ssh,
-                     traefik, update, and one up / down pair per local service)
-  g/_stack.sh        functions shared by the local service tasks
-  g/_docker.sh       Docker engine check shared by the traefik and docker tasks
+  g/                 global `g:*` tasks (agents, bw, claude, colima, docker, herdr, ssh,
+                     tools, update, zsh)
+  g/_stack.sh        functions shared by g:tools:up / g:tools:down (stacks, Traefik)
+  g/_docker.sh       Docker engine check shared by the stack and docker tasks
 stacks/traefik/      local reverse proxy, one instance for the whole machine
 stacks/<service>/    local services started on demand behind Traefik
                      (chartdb, excalidraw, it-tools, mailpit)
@@ -170,7 +191,7 @@ installed is removed. To add a tool, add a `command arguments` line to
 
 Traefik listens on `127.0.0.1:80` and `[::1]:80`.
 Dashboard: [traefik.localhost/dashboard](http://traefik.localhost/dashboard/).
-`mise run g:traefik:up` (also the last step of `mise bootstrap`) gives up after 20 s when the
+`mise run tu traefik` (also the last step of `mise bootstrap`) gives up after 20 s when the
 Docker engine is stuck, and prints the command that restarts it, instead of waiting forever.
 In a project's `compose.yaml`:
 
@@ -195,17 +216,25 @@ to `<name>.yml` in the same directory.
 ## Local services on demand
 
 Small web apps started only when needed, behind Traefik (no port of their own, except the Mailpit
-SMTP server). Each one has a `g:<service>:up` / `g:<service>:down` task and two aliases:
+SMTP server). `mise run tu` (`g:tools:up`) starts them and `mise run td` (`g:tools:down`) stops
+them, one or several at once; Tab completes the names from the directories of `stacks/`:
 
-| Service | Start / stop | Address | Use |
+```sh
+mise run tu it-tools mailpit   # start
+mise run td it-tools mailpit   # stop
+mise run tu                    # no name: lists the stacks
+```
+
+| Service | Name | Address | Use |
 | --- | --- | --- | --- |
-| [Mailpit](https://mailpit.axllent.org) | `mise run mail` / `maild` | [mail.localhost](http://mail.localhost) | Catches every mail sent by local projects |
-| [ChartDB](https://github.com/chartdb/chartdb) | `mise run cdb` / `cdbd` | [chartdb.localhost](http://chartdb.localhost) | Database diagrams |
-| [IT-Tools](https://github.com/CorentinTh/it-tools) | `mise run tools` / `toolsd` | [tools.localhost](http://tools.localhost) | JWT, base64, hashes, UUID, cron… offline |
-| [Excalidraw](https://github.com/excalidraw/excalidraw) | `mise run draw` / `drawd` | [draw.localhost](http://draw.localhost) | Hand-drawn diagrams |
+| [Mailpit](https://mailpit.axllent.org) | `mailpit` | [mail.localhost](http://mail.localhost) | Catches every mail sent by local projects |
+| [ChartDB](https://github.com/chartdb/chartdb) | `chartdb` | [chartdb.localhost](http://chartdb.localhost) | Database diagrams |
+| [IT-Tools](https://github.com/CorentinTh/it-tools) | `it-tools` | [tools.localhost](http://tools.localhost) | JWT, base64, hashes, UUID, cron… offline |
+| [Excalidraw](https://github.com/excalidraw/excalidraw) | `excalidraw` | [draw.localhost](http://draw.localhost) | Hand-drawn diagrams |
 
 Starting a service also starts Traefik if needed, pulls the latest image and waits until the
-service answers. Stopping it removes its container.
+service answers. Stopping it removes its container. `traefik` is a stack too: `tu traefik` starts
+it alone, `td traefik` stops it and with it every `*.localhost` route.
 
 **Mailpit** never delivers a mail: everything lands in the inbox. Point a project's SMTP settings
 to `localhost:1025` from the host, or to `mailpit:1025` from a container on the `proxy` network.
@@ -217,7 +246,8 @@ container. Stopping the service keeps them; clearing the site data of `chartdb.l
 `draw.localhost` in the browser deletes them, so export the important ones. ChartDB usage
 analytics are disabled in `stacks/chartdb/compose.yml`.
 
-To add a service, copy one of `stacks/<service>/compose.yml` and `tasks/g/<service>/{up,down}`.
+To add a service, copy one of `stacks/<service>/compose.yml` to a new directory of `stacks/`:
+`tu` and `td` find it, and read its address from the `Host(…)` rule of its Traefik router.
 
 ## Docker cleanup
 
@@ -250,7 +280,7 @@ and, in brackets, the value recommended for this Mac: press Enter to keep it.
 
 Without a terminal, the recommended values are used. Colima saves the size in
 `~/.colima/default/colima.yaml`; later bootstraps keep it, and the login agent and
-`g:traefik:up` start the VM with it.
+`g:tools:up` start the VM with it.
 
 ```sh
 mise run vm         # g:colima:resources: asks again (current values shown), restarts the VM

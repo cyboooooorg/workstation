@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-#MISE description="[global] Installs the missing Claude Code plugins and updates the installed ones (Superpowers)"
+#MISE description="[global] cp · Installs the missing Claude Code plugins and updates the installed ones (Superpowers)"
+#MISE alias="cp"
 set -euo pipefail
 
 # Wanted Claude Code plugins: "plugin@marketplace", installed in the user scope.
