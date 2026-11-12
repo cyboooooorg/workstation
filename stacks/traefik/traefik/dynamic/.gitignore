@@ -1,0 +1,4 @@
+# Local route files are machine-specific: only the template is versioned.
+*
+!.gitignore
+!*.example
