@@ -81,7 +81,7 @@ login_shell = "zsh"
 builtin = "history-watch"
 
 # Once [tools] are installed:
-# - herdr plugins (Terminal Browser, Terminal Code)
+# - herdr plugins (herdr-sidebar)
 # - global instructions for coding agents (dotfiles/agents/AGENTS.md), linked only for the
 #   agents installed on this machine: [dotfiles] entries cannot depend on that
 # - `docker compose` and `docker buildx`: the mise binaries linked into ~/.docker/cli-plugins,

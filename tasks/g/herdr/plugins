@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-#MISE description="[global] hp · Installs the missing herdr plugins (Terminal Browser, Terminal Code)"
+#MISE description="[global] hp · Installs the missing herdr plugins (herdr-sidebar: file explorer and source control)"
 #MISE alias="hp"
 set -euo pipefail
 
 # Wanted herdr plugins: "plugin id|GitHub source".
-# Installing them also runs the program's official installer (into ~/.local).
+# Installing them also runs the plugin build: herdr-sidebar downloads its SHA-256-verified
+# release binary, or builds it from source when there is none for the platform.
 # No effect on an already installed plugin: updates go through `mise run up`.
 PLUGINS='
-zenbu-labs.terminal-browser|zenbu-labs/terminal-browser/herdr-plugin
-zenbu-labs.tode|zenbu-labs/terminal-code/herdr-plugin
+herdr-sidebar|alexarthurs/herdr-sidebar/plugins/herdr-sidebar
 '
 
 installed="$(herdr plugin list 2>/dev/null || true)"

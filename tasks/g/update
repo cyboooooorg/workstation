@@ -31,22 +31,10 @@ mise upgrade
 mise prune --yes
 
 # ─── herdr plugins ────────────────────────────────────────────────
-# `herdr plugin update` only updates the plugins themselves (GitHub repositories).
-# The programs they run are released at their own pace and have their own
-# update command (installed into ~/.local, outside mise).
+# Updates the plugins installed from GitHub (herdr-sidebar).
 # A failure here does not stop the rest (Homebrew, apt, snap).
 step "herdr plugins"
 herdr plugin update -y || warn "herdr plugin update failed"
-
-step "terminal-browser (herdr plugin Terminal Browser)"
-if command -v terminal-browser >/dev/null; then
-  terminal-browser upgrade || warn "terminal-browser upgrade failed"
-fi
-
-step "tode (herdr plugin Terminal Code)"
-if command -v tode >/dev/null; then
-  tode --upgrade || warn "tode --upgrade failed"
-fi
 
 # ─── Homebrew (macOS: colima, kitty…; Linux: mise itself) ─────────
 if [[ -n "$BREW" ]]; then
