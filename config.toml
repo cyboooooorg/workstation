@@ -3,7 +3,10 @@
 # (unavailable package managers, apt on macOS or brew-cask on Linux, are skipped on their own).
 
 [tools]
-bitwarden = "latest"
+# Pinned: the aqua registry baked into mise 2026.11.12 misses the asset rename of
+# cli-v2026.11.0 (fixed upstream in aquaproj/aqua-registry#64947). Back to "latest"
+# once a mise release bundles that fix.
+bitwarden = "2026.10.1"
 claude = "latest"
 docker-cli = "latest"
 docker-compose = "latest"
