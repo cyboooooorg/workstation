@@ -9,6 +9,18 @@ setup_file() {
   git -C "$R" -c user.email=a@b -c user.name=a commit -q --allow-empty -m init
   git -C "$R" worktree add -q "$BATS_FILE_TMPDIR/wt" -b feat
   mkdir "$BATS_FILE_TMPDIR/plain"
+  # wiki, glwiki: wikis of GitHub and GitLab on master (no pull requests there)
+  local w
+  for w in wiki glwiki; do
+    git init -q -b master "$BATS_FILE_TMPDIR/$w"
+    git -C "$BATS_FILE_TMPDIR/$w" -c user.email=a@b -c user.name=a commit -q --allow-empty -m init
+  done
+  git -C "$BATS_FILE_TMPDIR/wiki" remote add origin https://github.com/o/r.wiki.git
+  git -C "$BATS_FILE_TMPDIR/glwiki" remote add origin git@gitlab.com:g/p.wiki.git
+  # notwiki: a repository whose name only contains "wiki"
+  git init -q -b main "$BATS_FILE_TMPDIR/notwiki"
+  git -C "$BATS_FILE_TMPDIR/notwiki" -c user.email=a@b -c user.name=a commit -q --allow-empty -m init
+  git -C "$BATS_FILE_TMPDIR/notwiki" remote add origin https://github.com/o/my.wiki-tools.git
 }
 
 # decision <command> <cwd relative to the test directory> [tool]
@@ -71,6 +83,15 @@ check() {
 # Merging a pull request on the forge stays allowed (with the user's approval)
 @test "gh pr merge: allowed" { check allow 'gh pr merge 12 --merge --subject "feat: x (#12)"' r; }
 @test "glab mr merge: allowed" { check allow 'glab mr merge 12' r; }
+
+# Wikis take no pull requests: their default branch is pushed and merged directly
+@test "push on a GitHub wiki: allowed" { check allow 'git push' wiki; }
+@test "push origin master on a GitHub wiki: allowed" { check allow 'git push origin master' wiki; }
+@test "push on a GitLab wiki: allowed" { check allow 'git push' glwiki; }
+@test "merge on a wiki: allowed" { check allow 'git merge origin/master' wiki; }
+@test "cd to a wiki then push: allowed" { check allow "cd $BATS_FILE_TMPDIR/wiki && git push" r; }
+@test "force push on a wiki: denied" { check deny 'git push -f origin master' wiki; }
+@test "push on a repository named like a wiki: denied" { check deny 'git push' notwiki; }
 
 # Out of scope
 @test "git push quoted in echo: allowed" { check allow 'echo git push -f origin main' r; }
