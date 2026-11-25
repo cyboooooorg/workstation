@@ -174,6 +174,10 @@ workflow that rebuilds an integration branch from `main` (`git checkout -B devel
 git merge …`, then `git push --force-with-lease origin origin/main:develop`) is allowed. The
 default branch is `origin/HEAD`, else `main` or `master`.
 
+A wiki of GitHub or GitLab (an `origin` ending in `.wiki.git`, such as
+`https://github.com/owner/repo.wiki.git`) takes no pull requests: its default branch is the only
+way to publish, so pushing and merging there is allowed. Force pushes without lease stay blocked.
+
 The hook reads the command, not what it will do: a push hidden in a script it runs is not seen.
 It is a guard rail, not a security boundary. Its tests are in `tests/git-guard.bats`.
 

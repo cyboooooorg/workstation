@@ -8,6 +8,8 @@
 #   - a `git merge` while the default branch is checked out.
 # Allows everything else, merging a pull request on the forge (`gh pr merge`, `glab mr merge`)
 # included: when to merge stays the user's decision, written in each project's instructions.
+# A forge wiki (origin ending in .wiki.git) takes no pull requests: pushing or merging its
+# default branch is allowed there, force pushes stay denied.
 #
 # The default branch is origin/HEAD, else main or master. A command is split on && || ; |,
 # and a `cd` moves the following parts. After a `git checkout` or `git switch` in the same
@@ -47,6 +49,12 @@ default_branch() {
       return
     fi
   done
+}
+
+# True when the repository at $1 is a forge wiki (origin ends in .wiki.git, as on GitHub and
+# GitLab): a wiki takes no pull requests, its default branch is the only way to publish.
+is_wiki() {
+  git -C "$1" remote get-url origin 2>/dev/null | grep -Eq '\.wiki(\.git)?/?$'
 }
 
 # Absolute path of $1, relative to $2 when it is not absolute ("~" is expanded).
@@ -104,6 +112,7 @@ while IFS= read -r seg; do
       fi
     fi
     [ -d "$dir" ] || continue
+    is_wiki "$dir" && continue
     def=$(default_branch "$dir")
     [ -n "$def" ] || continue
     cur=$(git -C "$dir" symbolic-ref --short HEAD 2>/dev/null || true)
@@ -118,6 +127,7 @@ while IFS= read -r seg; do
     grep -Eq '(^| )(--help|-h)( |$)' <<<"$seg" && continue
     [ $switched = 0 ] || continue
     [ -d "$dir" ] || continue
+    is_wiki "$dir" && continue
     cur=$(git -C "$dir" symbolic-ref --short HEAD 2>/dev/null) || continue
     def=$(default_branch "$dir")
     if [ -n "$def" ] && [ "$cur" = "$def" ]; then
